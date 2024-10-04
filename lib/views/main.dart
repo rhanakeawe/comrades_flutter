@@ -3,7 +3,6 @@ import 'package:comrades_flutter/views/friends.dart';
 import 'package:comrades_flutter/views/home.dart';
 import 'package:comrades_flutter/views/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MainScreen());
