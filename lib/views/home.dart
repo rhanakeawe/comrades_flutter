@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'create_group.dart';  // Make sure to import your CreateGroupScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,6 +19,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _eventDate = '';
   String? _eventType = '';
 
+  // Temporary list to store group names
+  List<String> groups = ['Family', 'Friends', 'Work'];  // This can be dynamically updated later
+  String? selectedGroup;  // To hold the selected group
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,6 +32,17 @@ class _HomeScreenState extends State<HomeScreen> {
           'Home',
           style: GoogleFonts.teko(color: Colors.white, fontSize: 48),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CreateGroupScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: Scrollbar(
         child: SingleChildScrollView(
@@ -65,11 +81,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         _selectedDay = selectedDay;
                         _focusedDay = focusedDay;
                         _eventDate =
-                            '${_selectedDay.month} / ${_selectedDay.day} / ${_selectedDay.year}';
+                        '${_selectedDay.month} / ${_selectedDay.day} / ${_selectedDay.year}';
                       });
                     }
                   },
                 ),
+                const SizedBox(height: 20),
+                // Dropdown for selecting a group
+                DropdownButton<String>(
+                  hint: const Text('Select Group'),
+                  value: selectedGroup,
+                  items: groups.map((String group) {
+                    return DropdownMenuItem<String>(
+                      value: group,
+                      child: Text(group),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedGroup = newValue;
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: DropdownButton<String>(
@@ -100,16 +134,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: TextButton(
                     style: ButtonStyle(
                         foregroundColor:
-                            WidgetStateProperty.all<Color>(Colors.white),
+                        WidgetStateProperty.all<Color>(Colors.white),
                         backgroundColor: _eventType != '' &&
-                                _eventDate != '' &&
-                                _eventName != ''
+                            _eventDate != '' &&
+                            _eventName != ''
                             ? WidgetStateProperty.all<Color>(Colors.red)
                             : WidgetStateProperty.all<Color>(Colors.grey)),
                     onPressed:
-                        _eventType != '' && _eventDate != '' && _eventName != ''
-                            ? () {}
-                            : null,
+                    _eventType != '' && _eventDate != '' && _eventName != ''
+                        ? () {}
+                        : null,
                     child: const Text('Set'),
                   ),
                 ),
