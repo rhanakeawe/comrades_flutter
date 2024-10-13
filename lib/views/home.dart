@@ -57,7 +57,7 @@ class CalendarPage extends StatelessWidget {
                                   ),
                                 ),
                               ],
-                              automaticallyImplyLeading: false,
+                              automaticallyImplyLeading: false, // should remove > button but idk
                               backgroundColor: Colors.red,
                             ),
                           ),
