@@ -79,7 +79,7 @@ class CalendarPage extends StatelessWidget {
           centerTitle: true, // Centers the title/logo in the app bar
           backgroundColor: Colors.red, // thinking maybe a blood red?
           leading: IconButton(
-            icon: const Icon(Icons.menu), //
+            icon: const Icon(Icons.menu), // new place to enter account.dart
             iconSize: 32, // size of hamburger button
             color: Colors.white,
             onPressed: () {
