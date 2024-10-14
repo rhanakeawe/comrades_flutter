@@ -57,7 +57,8 @@ class CalendarPage extends StatelessWidget {
                                   ),
                                 ),
                               ],
-                              automaticallyImplyLeading: false, // should remove > button but idk
+                              automaticallyImplyLeading:
+                                  false, // should remove > button but idk
                               backgroundColor: Colors.red,
                             ),
                           ),
@@ -78,16 +79,22 @@ class CalendarPage extends StatelessWidget {
           ),
           centerTitle: true, // Centers the title/logo in the app bar
           backgroundColor: Colors.red, // thinking maybe a blood red?
-          leading: IconButton(
-            icon: const Icon(Icons.menu), // new place to enter account.dart
-            iconSize: 32, // size of hamburger button
-            color: Colors.white,
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
+          leading: Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.menu), // new place to enter account.dart
+                iconSize: 32, // size of hamburger button
+                color: Colors.white,
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              );
             },
           ),
         ),
       ),
+      drawerEnableOpenDragGesture: false,
+      drawer: const AccountScreen(),
       backgroundColor: Colors.black,
       body: Center(
         child: Text(
