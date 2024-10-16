@@ -33,7 +33,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
               },
             ),
             const SizedBox(height: 20),
-            Text('Pick a Color:'),
+            const Text('Pick a Color:'),
             Row(
               children: [
                 ColorOption(color: Colors.blue, selectedColor: groupColor, onTap: () {

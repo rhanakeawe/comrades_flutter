@@ -1,7 +1,4 @@
-import 'package:Comrades/views/account.dart';
-import 'package:Comrades/views/friends.dart';
 import 'package:Comrades/views/home.dart';
-import 'package:Comrades/views/settings.dart';
 import 'package:flutter/material.dart';
 
 void main() {
