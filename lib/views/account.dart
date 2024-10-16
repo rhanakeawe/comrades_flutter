@@ -42,8 +42,8 @@ class AccountScreen extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.cake_outlined), // Changed icon
-            title: Text('Idk'),
+            leading: Icon(Icons.castle_sharp), // Changed icon
+            title: Text('Goals'),
             onTap: () {
               // Navigate to Studio screen
               Navigator.pop(context);
