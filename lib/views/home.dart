@@ -5,12 +5,8 @@ import 'package:Comrades/views/account_views/pregnant.dart';
 import 'package:Comrades/views/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'account_views/help.dart';
-import 'create_group.dart'; // Make sure to import your CreateGroupScreen
-import 'package:Comrades/views/account.dart';
-import 'package:Comrades/views/friends.dart';
-import 'package:Comrades/views/home.dart';
+// Make sure to import your CreateGroupScreen
 import 'package:Comrades/views/settings.dart';
 
 // Maybe make the home page the calendar page since it'll be the focus

@@ -14,7 +14,7 @@ class FriendGroup {
     required this.groupColor,
     required this.members,
     required this.visibleTo,
-  }) : groupId = groupId ?? Uuid().v4();  // Auto-generate groupId if not provided
+  }) : groupId = groupId ?? const Uuid().v4();  // Auto-generate groupId if not provided
 
   // Convert FriendGroup to JSON
   Map<String, dynamic> toJson() {
