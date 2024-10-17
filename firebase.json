@@ -1,0 +1,30 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "comrades-cpsc362",
+          "appId": "1:426726402912:android:358025b4155ec079938c05",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "comrades-cpsc362",
+          "appId": "1:426726402912:ios:6a57dab8bce2fcb0938c05",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "comrades-cpsc362",
+          "configurations": {
+            "android": "1:426726402912:android:358025b4155ec079938c05",
+            "ios": "1:426726402912:ios:6a57dab8bce2fcb0938c05"
+          }
+        }
+      }
+    }
+  }
+}

@@ -12,7 +12,12 @@
           "package_name": "com.example.comrades_flutter"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "426726402912-ddro9b404fnqeq93rl3lt32drg2gv8uk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDC4Ihu_plYCST8CX7e_58AZiRA0uCVoeo"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "426726402912-ddro9b404fnqeq93rl3lt32drg2gv8uk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "426726402912-733p9lht0sg14dd9bcvi2uhqo4ck02fi.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.comradesFlutter"
+              }
+            }
+          ]
         }
       }
     }
