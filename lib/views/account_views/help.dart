@@ -9,7 +9,7 @@ class Help extends StatelessWidget {
     return Container(
       child: Center(
         child: Text(
-          'Help',
+          'Hellp',
           style: GoogleFonts.teko(color: Colors.white, fontSize: 48),
         ),
       ),
