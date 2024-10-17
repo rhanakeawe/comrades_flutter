@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "426726402912",
+    "project_id": "comrades-cpsc362",
+    "storage_bucket": "comrades-cpsc362.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:426726402912:android:358025b4155ec079938c05",
+        "android_client_info": {
+          "package_name": "com.example.comrades_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDC4Ihu_plYCST8CX7e_58AZiRA0uCVoeo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
