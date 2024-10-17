@@ -3,6 +3,7 @@ import 'package:Comrades/views/account_views/idk.dart';
 import 'package:Comrades/views/account_views/non-negotiables.dart';
 import 'package:Comrades/views/account_views/pregnant.dart';
 import 'package:Comrades/views/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'account_views/help.dart';
@@ -25,7 +26,7 @@ class _CalendarPageState extends State<CalendarPage> {
   int _selectedIndex = 0;
   String selectedPage = 'Home Page';
   String userName = "Karl Marx";
-  String userEmail = "karlmarx@csu.fullerton.edu";
+  String userEmail = FirebaseAuth.instance.currentUser?.email ?? "karlmarx@csu.fullerton.edu";
   //Todo: Add BottomNav pages to beginning of list
   List<Widget> widgetList = const [
     Non_negotiables(),
