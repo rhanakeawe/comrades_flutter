@@ -9,7 +9,7 @@ class idk extends StatelessWidget {
     return Container(
       child: Center(
         child: Text(
-          'idk',
+          'iddk',
           style: GoogleFonts.teko(color: Colors.white, fontSize: 48),
         ),
       ),

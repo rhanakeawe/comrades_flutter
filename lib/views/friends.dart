@@ -10,7 +10,7 @@ class FriendsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: Text(
-          'Friends',
+          'Friennds',
           style: GoogleFonts.teko(color: Colors.white, fontSize: 48),
         ),
       ),

@@ -1,7 +1,7 @@
-class AuthService {
+//class AuthService {
 
   // Google sign in
-  signInWithGoogle() async {
+ // signInWithGoogle() async {
     // begin interactive sign in process
 
     // obtain auth details from request
@@ -10,5 +10,5 @@ class AuthService {
 
     // finally lets sign in
 
-  }
-}
+//  }
+// }
