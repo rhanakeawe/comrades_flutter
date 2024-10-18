@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
-import 'package:Comrades/views/home.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,7 +21,7 @@ class LoginPageState extends State<LoginPage> {
         // The user canceled the sign-in
         return;
       }
-
+      await saveUser(googleUser);
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -41,6 +41,16 @@ class LoginPageState extends State<LoginPage> {
         SnackBar(content: Text('Error signing in with Google: $e')),
       );
     }
+  }
+
+  Future<void> saveUser (GoogleSignInAccount googleUser) async {
+    FirebaseFirestore.instance.collection("users")
+        .doc(googleUser.email)
+        .set({
+      "email" : googleUser.email,
+      "name" : googleUser.displayName,
+      "profilepic": googleUser.photoUrl
+    });
   }
 
   @override

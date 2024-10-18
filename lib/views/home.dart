@@ -2,7 +2,9 @@ import 'package:Comrades/views/account_views/account_settings.dart';
 import 'package:Comrades/views/account_views/idk.dart';
 import 'package:Comrades/views/account_views/non-negotiables.dart';
 import 'package:Comrades/views/account_views/pregnant.dart';
+import 'package:Comrades/views/loginpage.dart';
 import 'package:Comrades/views/main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,10 +25,12 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
+  FirebaseFirestore db = FirebaseFirestore.instance;
   int _selectedIndex = 0;
   String selectedPage = 'Home Page';
-  String userName = "Karl Marx";
-  String userEmail = FirebaseAuth.instance.currentUser?.email ?? "karlmarx@csu.fullerton.edu";
+  late String userName = "";
+  late String userEmail = "";
+  late String userImage = "";
   //Todo: Add BottomNav pages to beginning of list
   List<Widget> widgetList = const [
     Non_negotiables(),
@@ -35,6 +39,22 @@ class _CalendarPageState extends State<CalendarPage> {
     Help(),
     Pregnant()
   ];
+  
+  void getUserData() {
+    db.collection("users").where("email",isEqualTo: FirebaseAuth.instance.currentUser?.email).get().then(
+        (users) {
+          print("Successfully queried user!");
+          for (var user in users.docs) {
+            setState(() {
+              userName = user.data()["name"];
+              userEmail = user.data()["email"];
+              userImage = user.data()["profilepic"];
+            });
+          }
+        },
+      onError: (e) => print("Error completing: $e"),
+    );
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -44,6 +64,9 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (userName.isEmpty) {
+      getUserData();
+    }
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(50.0),
@@ -140,9 +163,9 @@ class _CalendarPageState extends State<CalendarPage> {
                     color: Colors.white70,
                   ),
                 ),
-                currentAccountPicture: const CircleAvatar(
-                  backgroundImage: AssetImage(
-                      'assets/profile_picture.jpg'), // Replace with your profile picture
+                currentAccountPicture: CircleAvatar(
+                  backgroundImage: Image.network(
+                      userImage).image, // Replace with your profile picture
                 ),
                 decoration: const BoxDecoration(
                   color: Colors.red, // Replace with preferred color
@@ -203,8 +226,8 @@ class _CalendarPageState extends State<CalendarPage> {
                 leading: const Icon(Icons.logout),
                 title: const Text('Log Out'),
                 onTap: () {
-                  // Handle log out functionality
-                  Navigator.pop(context);
+                  FirebaseAuth.instance.signOut();
+                  LoginPage();
                 },
               ),
             ],
