@@ -243,7 +243,6 @@ class _CalendarPageState extends State<CalendarPage> {
         children: widgetList,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        showUnselectedLabels: false,
         backgroundColor: Colors.white,
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
