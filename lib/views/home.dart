@@ -108,7 +108,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               ],
                               automaticallyImplyLeading:
                               false, // should remove > button but idk
-                              backgroundColor: Colors.blue,
+                              backgroundColor: Colors.red,
                             ),
                           ),
                           const Expanded(
