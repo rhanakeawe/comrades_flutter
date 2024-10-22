@@ -1,68 +1,181 @@
+import 'package:Comrades/views/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginPage extends StatelessWidget {
+  LoginPage({super.key});
 
-  @override
-  LoginPageState createState() => LoginPageState();
-}
+  // text editing controllers
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
 
-class LoginPageState extends State<LoginPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-
-  Future<void> _signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        // The user canceled the sign-in
-        return;
-      }
-      await saveUser(googleUser);
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // Sign in to Firebase with the Google user credentials
-      await _auth.signInWithCredential(credential);
-
-      if (!mounted) return;
-
-      // No need for explicit navigation here as the StreamBuilder in main.dart
-      // will automatically detect that the user is signed in and navigate to the home page
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error signing in with Google: $e')),
-      );
-    }
-  }
-
-  Future<void> saveUser (GoogleSignInAccount googleUser) async {
-    FirebaseFirestore.instance.collection("users")
-        .doc(googleUser.email)
-        .set({
-      "email" : googleUser.email,
-      "name" : googleUser.displayName,
-      "profilepic": googleUser.photoUrl
-    });
-  }
+  // sign user in method
+  void signUserIn() {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login with Google'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: _signInWithGoogle,
-          child: const Text('Sign in with Google'),
+      backgroundColor: Colors.grey[300],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 50),
+
+                // Logo
+                Center(
+                  child: Image.asset(
+                    'assets/comrades1024.png',
+                    height: 100, // adjusts height of the logo up top
+                  ),
+                ),
+
+                const SizedBox(height: 50),
+
+                // welcome back, you've been missed!
+                Text(
+                  'Comrade, you\'ve been missed!',
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 20,
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                // username textfield
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: TextField(
+                    controller: usernameController,
+                    decoration: InputDecoration(
+                      hintText: 'Username',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: false,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // password textfield
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: TextField(
+                    controller: passwordController,
+                    decoration: InputDecoration(
+                      hintText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // forgot password?
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Forgot Password?',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                // sign in button
+                ElevatedButton(
+                  onPressed: signUserIn,
+                  child: Text('Sign In'),
+                ),
+
+                const SizedBox(height: 50),
+
+                // or continue with
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          thickness: 0.5,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Text(
+                          'Or continue with',
+                          style: TextStyle(color: Colors.grey[700]),
+                        ),
+                      ),
+                      Expanded(
+                        child: Divider(
+                          thickness: 0.5,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 50),
+
+                // google + apple sign in buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // google button
+                    IconButton(
+                      icon: Image.asset('assets/googleLogo.png'),
+                      iconSize: 50,
+                      onPressed: () {},
+                    ),
+
+                    const SizedBox(width: 25),
+
+                    // apple button
+                    IconButton(
+                      icon: Image.asset('assets/appleLogo.png'),
+                      iconSize: 50,
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 50),
+
+                // not a member? register now
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Not a member?',
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                    const SizedBox(width: 4),
+                    const Text(
+                      'Register now',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

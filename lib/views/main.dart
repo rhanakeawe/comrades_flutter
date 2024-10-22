@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
             return const CalendarPage();
           } else {
             // User is not signed in
-            return const LoginPage();
+            return LoginPage();
           }
         },
       ),
