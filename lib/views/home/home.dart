@@ -134,7 +134,7 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
         ),
       ),
-      drawerEnableOpenDragGesture: false,
+      drawerEnableOpenDragGesture: true,
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
