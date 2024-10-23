@@ -14,10 +14,33 @@ class LoginPage extends StatelessWidget {
   // sign user in method
   void signUserIn() {}
 
+  // sign in with Google
+  Future<void> signInWithGoogle() async {
+    try {
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth =
+      await googleUser!.authentication;
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Once signed in, return the UserCredential
+      await FirebaseAuth.instance.signInWithCredential(credential);
+    } catch (e) {
+      print('Error signing in with Google: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.black, // Set dark background color
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
@@ -26,58 +49,74 @@ class LoginPage extends StatelessWidget {
               children: [
                 const SizedBox(height: 50),
 
-                // Logo
+                // Comrades Logo
                 Center(
                   child: Image.asset(
-                    'assets/comrades1024.png',
-                    height: 100, // adjusts height of the logo up top
+                    'assets/comrades1024.png', // Use the comrades logo image
+                    height: 100, // Adjusts height of the logo up top
+                    fit: BoxFit.contain,
                   ),
                 ),
 
                 const SizedBox(height: 50),
 
-                // welcome back, you've been missed!
+                // Welcome back, you've been missed!
                 Text(
                   'Comrade, you\'ve been missed!',
                   style: TextStyle(
-                    color: Colors.grey[700],
+                    color: Colors.grey[300], // Light grey text color for dark background
                     fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
 
                 const SizedBox(height: 25),
 
-                // username textfield
+                // Username textfield
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
                   child: TextField(
                     controller: usernameController,
                     decoration: InputDecoration(
-                      hintText: 'Username',
-                      border: OutlineInputBorder(),
+                      hintText: 'Email', // Change to "Email" to match reference
+                      hintStyle: TextStyle(color: Colors.grey[500]),
+                      filled: true,
+                      fillColor: Colors.grey[800], // Dark fill color for text field
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                     obscureText: false,
+                    style: TextStyle(color: Colors.white), // Text color inside input
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
-                // password textfield
+                // Password textfield
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
                   child: TextField(
                     controller: passwordController,
                     decoration: InputDecoration(
                       hintText: 'Password',
-                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(color: Colors.grey[500]),
+                      filled: true,
+                      fillColor: Colors.grey[800],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                     obscureText: true,
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
-                // forgot password?
+                // Forgot password?
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
                   child: Row(
@@ -85,7 +124,7 @@ class LoginPage extends StatelessWidget {
                     children: [
                       Text(
                         'Forgot Password?',
-                        style: TextStyle(color: Colors.grey[600]),
+                        style: TextStyle(color: Colors.grey[500]), // Light grey for visibility
                       ),
                     ],
                   ),
@@ -93,15 +132,34 @@ class LoginPage extends StatelessWidget {
 
                 const SizedBox(height: 25),
 
-                // sign in button
-                ElevatedButton(
-                  onPressed: signUserIn,
-                  child: Text('Sign In'),
+                // Sign in button
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[900], // Dark button color
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: signUserIn,
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white, // White text for contrast
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
 
                 const SizedBox(height: 50),
 
-                // or continue with
+                // Or continue with
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
                   child: Row(
@@ -109,66 +167,95 @@ class LoginPage extends StatelessWidget {
                       Expanded(
                         child: Divider(
                           thickness: 0.5,
-                          color: Colors.grey[400],
+                          color: Colors.grey[700], // Light divider for visibility
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Text(
                           'Or continue with',
-                          style: TextStyle(color: Colors.grey[700]),
+                          style: TextStyle(color: Colors.grey[500]),
                         ),
                       ),
                       Expanded(
                         child: Divider(
                           thickness: 0.5,
-                          color: Colors.grey[400],
+                          color: Colors.grey[700],
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 50),
+                const SizedBox(height: 25),
 
-                // google + apple sign in buttons
+                // Google + Apple sign in buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // google button
-                    IconButton(
-                      icon: Image.asset('assets/googleLogo.png'),
-                      iconSize: 50,
-                      onPressed: () {},
+                    // Google button
+                    GestureDetector(
+                      onTap: signInWithGoogle,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[700]!),
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.grey[800], // Dark background for buttons
+                        ),
+                        child: Image.asset(
+                          'assets/googleLogo.png',
+                          height: 40,
+                          width: 40,
+                        ),
+                      ),
                     ),
 
                     const SizedBox(width: 25),
 
-                    // apple button
-                    IconButton(
-                      icon: Image.asset('assets/appleLogo.png'),
-                      iconSize: 50,
-                      onPressed: () {},
+                    // Apple button
+                    GestureDetector(
+                      onTap: () {
+                        // Implement Apple Sign-In
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[700]!),
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.grey[800],
+                        ),
+                        child: Image.asset(
+                          'assets/appleLogo.png',
+                          height: 40,
+                          width: 40,
+                        ),
+                      ),
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 50),
 
-                // not a member? register now
+                // Not a member? Register now
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Not a member?',
-                      style: TextStyle(color: Colors.grey[700]),
+                      style: TextStyle(color: Colors.grey[500]),
                     ),
                     const SizedBox(width: 4),
-                    const Text(
-                      'Register now',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
+                    GestureDetector(
+                      onTap: () {
+                        // Navigate to registration page
+                      },
+                      child: const Text(
+                        'Register now',
+                        style: TextStyle(
+                          color: Colors.blueAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
