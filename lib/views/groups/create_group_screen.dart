@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreateGroupScreen extends StatefulWidget {
-  const CreateGroupScreen({super.key});
-
   @override
   _CreateGroupScreenState createState() => _CreateGroupScreenState();
 }
@@ -23,22 +20,17 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   }
 
   void createGroup() {
+    // Handle creating the group in Firebase
     final String groupName = _groupNameController.text;
 
     if (groupName.isNotEmpty && members.isNotEmpty) {
-      FirebaseFirestore.instance.collection('groups').add({
-        'name': groupName,
-        'members': members,
-      }).then((value) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Group Created Successfully')),
-        );
-        Navigator.pop(context); // Navigate back to GroupsPage
-      }).catchError((error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create group: $error')),
-        );
-      });
+      // Add the group to Firebase Firestore
+      // FirebaseFirestore.instance.collection('groups').add({
+      //   'name': groupName,
+      //   'members': members,
+      // });
+
+      Navigator.pop(context); // Navigate back to GroupsPage
     }
   }
 

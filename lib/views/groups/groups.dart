@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:Comrades/views/groups/create_group_screen.dart';
 
 class GroupsPage extends StatelessWidget {
   const GroupsPage({super.key});
@@ -27,7 +28,11 @@ class GroupsPage extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     // Define what happens when you click + Add Group
-                    print('Add Group clicked');
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => CreateGroupScreen(),
+                      ),
+                    );
                   },
                   child: Text(
                     '+ Add Group', // Clickable text
@@ -46,11 +51,11 @@ class GroupsPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8.0), // Reduced horizontal padding for group containers
               child: ListView(
                 children: [
-                  buildGroupCard('Comrades', Colors.white, Colors.red),
+                  buildGroupCard(context, 'Comrades', Colors.white, Colors.red),
                   SizedBox(height: 12), // Adjusted spacing between group cards
-                  buildGroupCard('Apes', Colors.white, Colors.brown),
+                  buildGroupCard(context, 'Apes', Colors.white, Colors.brown),
                   SizedBox(height: 12), // Adjusted spacing between group cards
-                  buildGroupCard('Neighborhood', Colors.white, Colors.purple[200]!),
+                  buildGroupCard(context, 'Neighborhood', Colors.white, Colors.purple[200]!),
                 ],
               ),
             ),
@@ -61,7 +66,7 @@ class GroupsPage extends StatelessWidget {
   }
 
   // Function to build each group card with custom text, background color, and a thin, subtle gray border around the bottom section
-  Widget buildGroupCard(String groupName, Color textColor, Color topColor) {
+  Widget buildGroupCard(BuildContext context, String groupName, Color textColor, Color topColor) {
     return Container(
       height: 160, // Slightly increased the height of each group card to match the screenshot
       width: double.infinity, // Takes full width within the reduced padding
@@ -104,7 +109,11 @@ class GroupsPage extends StatelessWidget {
               icon: Icon(Icons.more_vert),
               color: Colors.black, // Icon color
               onPressed: () {
-                // Add functionality for editing the group
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => CreateGroupScreen(),
+                  ),
+                );
               },
             ),
           ),
