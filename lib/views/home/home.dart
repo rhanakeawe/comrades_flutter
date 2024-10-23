@@ -1,16 +1,16 @@
-import 'package:Comrades/views/account_views/account_settings.dart';
-import 'package:Comrades/views/account_views/idk.dart';
-import 'package:Comrades/views/account_views/non-negotiables.dart';
-import 'package:Comrades/views/account_views/pregnant.dart';
-import 'package:Comrades/views/loginpage.dart';
+import 'package:Comrades/views/account/account_settings.dart';
+import 'package:Comrades/views/account/idk.dart';
+import 'package:Comrades/views/account/non-negotiables.dart';
+import 'package:Comrades/views/account/pregnant.dart';
+import 'package:Comrades/views/auth/loginpage.dart';
 import 'package:Comrades/views/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'account_views/help.dart';
+import 'package:Comrades/views/account/help.dart';
 // Make sure to import your CreateGroupScreen
-import 'package:Comrades/views/settings.dart';
+import 'package:Comrades/views/settings/settings.dart';
 
 // Maybe make the home page the calendar page since it'll be the focus
 void main() {
