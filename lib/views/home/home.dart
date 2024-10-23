@@ -11,6 +11,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:Comrades/views/account/help.dart';
 // Make sure to import your CreateGroupScreen
 import 'package:Comrades/views/settings/settings.dart';
+import 'package:Comrades/views/groups/groups.dart';
+
 
 // Maybe make the home page the calendar page since it'll be the focus
 void main() {
@@ -259,7 +261,7 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today),
-              label: 'Calender',
+              label: 'Calendar',
               backgroundColor: Colors.orange
           ),
           BottomNavigationBarItem(
