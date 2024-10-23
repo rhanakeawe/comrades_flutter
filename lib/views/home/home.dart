@@ -14,7 +14,6 @@ import 'package:Comrades/views/groups/groups.dart'; // Import your GroupsPage he
 
 // Make sure to import your CreateGroupScreen
 
-// Maybe make the home page the calendar page since it'll be the focus
 void main() {
   runApp(const MyApp());
 }
