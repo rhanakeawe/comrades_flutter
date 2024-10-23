@@ -9,10 +9,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:Comrades/views/account/help.dart';
-// Make sure to import your CreateGroupScreen
 import 'package:Comrades/views/settings/settings.dart';
-import 'package:Comrades/views/groups/groups.dart';
+import 'package:Comrades/views/groups/groups.dart'; // Import your GroupsPage here
 
+// Make sure to import your CreateGroupScreen
 
 // Maybe make the home page the calendar page since it'll be the focus
 void main() {
@@ -33,8 +33,10 @@ class _CalendarPageState extends State<CalendarPage> {
   late String userName = "";
   late String userEmail = "";
   late String userImage = "";
-  //Todo: Add BottomNav pages to beginning of list
-  List<Widget> widgetList = const [
+
+  // Define the list of widgets (without const)
+  List<Widget> widgetList = [
+    GroupsPage(), // Add GroupsPage to the list
     Non_negotiables(),
     idk(),
     Account_Settings(),
@@ -43,17 +45,17 @@ class _CalendarPageState extends State<CalendarPage> {
   ];
 
   void getUserData() {
-    db.collection("users").where("email",isEqualTo: FirebaseAuth.instance.currentUser?.email).get().then(
-        (users) {
-          print("Successfully queried user!");
-          for (var user in users.docs) {
-            setState(() {
-              userName = user.data()["name"];
-              userEmail = user.data()["email"];
-              userImage = user.data()["profilepic"];
-            });
-          }
-        },
+    db.collection("users").where("email", isEqualTo: FirebaseAuth.instance.currentUser?.email).get().then(
+          (users) {
+        print("Successfully queried user!");
+        for (var user in users.docs) {
+          setState(() {
+            userName = user.data()["name"];
+            userEmail = user.data()["email"];
+            userImage = user.data()["profilepic"];
+          });
+        }
+      },
       onError: (e) => print("Error completing: $e"),
     );
   }
@@ -75,10 +77,7 @@ class _CalendarPageState extends State<CalendarPage> {
         child: AppBar(
           actions: [
             IconButton(
-              icon: const Icon(
-                Icons.settings,
-                color: Colors.white,
-              ),
+              icon: const Icon(Icons.settings, color: Colors.white),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
@@ -98,9 +97,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                     Navigator.pop(context);
                                   },
                                   child: Text(
-                                    'Done', // ** need help removing > button
-                                    // 'Done' is there but just isn't shown cause
-                                    // > button is in the way
+                                    'Done',
                                     style: GoogleFonts.roboto(
                                       color: Colors.white,
                                       fontSize: 20,
@@ -108,14 +105,11 @@ class _CalendarPageState extends State<CalendarPage> {
                                   ),
                                 ),
                               ],
-                              automaticallyImplyLeading:
-                              false, // should remove > button but idk
+                              automaticallyImplyLeading: false,
                               backgroundColor: Colors.red,
                             ),
                           ),
-                          const Expanded(
-                            child: SettingsScreen(), // settings screen widget
-                          ),
+                          const Expanded(child: SettingsScreen()),
                         ],
                       ),
                     );
@@ -124,20 +118,14 @@ class _CalendarPageState extends State<CalendarPage> {
               },
             ),
           ],
-          title: Image.asset(
-            'assets/Comrades40.png',
-            height: 100, // adjusts height of the logo up top
-          ),
+          title: Image.asset('assets/Comrades40.png', height: 100),
           centerTitle: true,
-          // Centers the title/logo in the app bar
           backgroundColor: Colors.red,
-          // thinking maybe a blood red?
           leading: Builder(
             builder: (context) {
               return IconButton(
-                icon:
-                const Icon(Icons.menu), // new place to enter account.dart
-                iconSize: 32, // size of hamburger button
+                icon: const Icon(Icons.menu),
+                iconSize: 32,
                 color: Colors.white,
                 onPressed: () {
                   Scaffold.of(context).openDrawer();
@@ -155,46 +143,37 @@ class _CalendarPageState extends State<CalendarPage> {
             UserAccountsDrawerHeader(
               accountName: Text(
                 userName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
               ),
               accountEmail: Text(
                 userEmail,
-                style: const TextStyle(
-                  color: Colors.white70,
-                ),
+                style: const TextStyle(color: Colors.white70),
               ),
               currentAccountPicture: CircleAvatar(
-                backgroundImage: Image
-                    .network(
-                    userImage)
-                    .image, // Replace with your profile picture
+                backgroundImage: Image.network(userImage).image,
               ),
               decoration: const BoxDecoration(
-                color: Colors.red, // Replace with preferred color
+                color: Colors.red,
               ),
             ),
-            // Todo: Shift these index numbers after BottomNav
+            // REMOVE or COMMENT OUT the Groups ListTile here
+            /*
             ListTile(
               selected: _selectedIndex == 0,
-              leading: const Icon(Icons.assist_walker),
-              title: const Text('Non-negotiables'),
+              leading: const Icon(Icons.home_rounded),
+              title: const Text('Groups'),
               onTap: () {
-                // Navigate to Files screen
-                _onItemTapped(0);
+                _onItemTapped(0); // Navigate to GroupsPage
                 Navigator.pop(context);
               },
             ),
+            */
             ListTile(
               selected: _selectedIndex == 1,
-              leading: const Icon(Icons.cake_outlined), // Changed icon
-              title: const Text('Idk'),
+              leading: const Icon(Icons.assist_walker),
+              title: const Text('Non-negotiables'),
               onTap: () {
-                // Navigate to Studio screen
-                _onItemTapped(1);
+                _onItemTapped(1); // Navigate to Non-negotiables
                 Navigator.pop(context);
               },
             ),
@@ -203,8 +182,7 @@ class _CalendarPageState extends State<CalendarPage> {
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
-                // Navigate to Settings screen
-                _onItemTapped(2);
+                _onItemTapped(2); // Navigate to Settings
                 Navigator.pop(context);
               },
             ),
@@ -213,8 +191,7 @@ class _CalendarPageState extends State<CalendarPage> {
               leading: const Icon(Icons.help),
               title: const Text('Help'),
               onTap: () {
-                // Navigate to Help screen
-                _onItemTapped(3);
+                _onItemTapped(3); // Navigate to Help
                 Navigator.pop(context);
               },
             ),
@@ -223,8 +200,7 @@ class _CalendarPageState extends State<CalendarPage> {
               leading: const Icon(Icons.pregnant_woman),
               title: const Text('Get Pregnant'),
               onTap: () {
-                // Handle change user functionality
-                _onItemTapped(4);
+                _onItemTapped(4); // Navigate to Pregnant
                 Navigator.pop(context);
               },
             ),
@@ -233,7 +209,10 @@ class _CalendarPageState extends State<CalendarPage> {
               title: const Text('Log Out'),
               onTap: () {
                 FirebaseAuth.instance.signOut();
-                LoginPage();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
               },
             ),
           ],
@@ -247,42 +226,36 @@ class _CalendarPageState extends State<CalendarPage> {
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
         type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        onTap: _onItemTapped, // Update _selectedIndex on tap
         currentIndex: _selectedIndex,
-        items: const[
+        items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.home_rounded),
-              label: 'Groups',
-              backgroundColor: Colors.red
+            icon: Icon(Icons.home_rounded),
+            label: 'Groups',
+            backgroundColor: Colors.red,
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              label: 'Calendar',
-              backgroundColor: Colors.orange
+            icon: Icon(Icons.calendar_today),
+            label: 'Calendar',
+            backgroundColor: Colors.orange,
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.flag_rounded),
-              label: 'Goals',
-              backgroundColor: Colors.yellow
+            icon: Icon(Icons.flag_rounded),
+            label: 'Goals',
+            backgroundColor: Colors.yellow,
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.notifications_rounded),
-              label: 'Notifications',
-              backgroundColor: Colors.green
+            icon: Icon(Icons.notifications_rounded),
+            label: 'Notifications',
+            backgroundColor: Colors.green,
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.inbox_rounded),
-              label: 'Inbox',
-              backgroundColor: Colors.blue
+            icon: Icon(Icons.inbox_rounded),
+            label: 'Inbox',
+            backgroundColor: Colors.blue,
           ),
         ],
       ),
     );
   }
 }
-
-
