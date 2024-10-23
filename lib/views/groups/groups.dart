@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:Comrades/views/groups/create_group_screen.dart';
+import 'package:Comrades/views/groups/group_card_edit.dart';  // Ensure this is imported correctly
 
 class GroupsPage extends StatelessWidget {
   const GroupsPage({super.key});
@@ -27,7 +28,7 @@ class GroupsPage extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    // Define what happens when you click + Add Group
+                    // Navigate to the Create Group screen
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => CreateGroupScreen(),
@@ -109,9 +110,10 @@ class GroupsPage extends StatelessWidget {
               icon: Icon(Icons.more_vert),
               color: Colors.black, // Icon color
               onPressed: () {
+                // Navigate to the group card edit screen
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => CreateGroupScreen(),
+                    builder: (context) => GroupCardEditScreen(groupName: groupName),
                   ),
                 );
               },
@@ -122,3 +124,4 @@ class GroupsPage extends StatelessWidget {
     );
   }
 }
+
