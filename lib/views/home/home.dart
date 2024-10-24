@@ -1,46 +1,35 @@
-import 'package:Comrades/views/account/account_settings.dart';
-import 'package:Comrades/views/account/idk.dart';
-import 'package:Comrades/views/account/non-negotiables.dart';
-import 'package:Comrades/views/account/pregnant.dart';
-import 'package:Comrades/views/auth/loginpage.dart';
-import 'package:Comrades/views/main.dart';
+import 'package:Comrades/views/goals/goals.dart';
+import 'package:Comrades/views/inbox/inbox.dart';
+import 'package:Comrades/views/notifications/notifications.dart';
+import 'package:Comrades/views/settings/settings.dart';
+import 'package:flutter/material.dart';
+import 'package:Comrades/views/account/account.dart';
+import 'package:Comrades/views/groups/groups.dart';
+import 'package:Comrades/views/calendar/calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:Comrades/views/account/help.dart';
-import 'package:Comrades/views/settings/settings.dart';
-import 'package:Comrades/views/groups/groups.dart'; // Import your GroupsPage here
 
-// Make sure to import your CreateGroupScreen
-
-void main() {
-  runApp(const MyApp());
-}
-
-class CalendarPage extends StatefulWidget {
-  const CalendarPage({super.key});
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
 
   @override
-  State<CalendarPage> createState() => _CalendarPageState();
+  State<MainPage> createState() => _MainPageState();
 }
 
-class _CalendarPageState extends State<CalendarPage> {
+class _MainPageState extends State<MainPage> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   int _selectedIndex = 0;
-  String selectedPage = 'Home Page';
-  late String userName = "";
-  late String userEmail = "";
-  late String userImage = "";
+  String userName = "";
+  String userEmail = "";
+  String userImage = "";
 
-  // Define the list of widgets (without const)
   List<Widget> widgetList = [
-    GroupsPage(), // Add GroupsPage to the list
-    Non_negotiables(),
-    idk(),
-    Account_Settings(),
-    Help(),
-    Pregnant()
+    GroupsPage(),         // index 0 -> Groups Page
+    CalendarPage(),       // index 1 -> Calendar Page
+    GoalsPage(),          // index 2 -> Groups Page
+    NotificationsPage(),  // index 3 -> Notifications Page
+    InboxPage(),          // index 4 -> Inbox Page
   ];
 
   void getUserData() {
@@ -82,36 +71,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   context: context,
                   isScrollControlled: true,
                   builder: (context) {
-                    return FractionallySizedBox(
-                      heightFactor: 0.9,
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 20.0,
-                            child: AppBar(
-                              toolbarHeight: 30.0,
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    'Done',
-                                    style: GoogleFonts.roboto(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              automaticallyImplyLeading: false,
-                              backgroundColor: Colors.red,
-                            ),
-                          ),
-                          const Expanded(child: SettingsScreen()),
-                        ],
-                      ),
-                    );
+                    return SettingsScreen();
                   },
                 );
               },
@@ -134,88 +94,12 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
         ),
       ),
-      drawerEnableOpenDragGesture: true,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            UserAccountsDrawerHeader(
-              accountName: Text(
-                userName,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
-              ),
-              accountEmail: Text(
-                userEmail,
-                style: const TextStyle(color: Colors.white70),
-              ),
-              currentAccountPicture: CircleAvatar(
-                backgroundImage: Image.network(userImage).image,
-              ),
-              decoration: const BoxDecoration(
-                color: Colors.red,
-              ),
-            ),
-            // REMOVE or COMMENT OUT the Groups ListTile here
-            /*
-            ListTile(
-              selected: _selectedIndex == 0,
-              leading: const Icon(Icons.home_rounded),
-              title: const Text('Groups'),
-              onTap: () {
-                _onItemTapped(0); // Navigate to GroupsPage
-                Navigator.pop(context);
-              },
-            ),
-            */
-            ListTile(
-              selected: _selectedIndex == 1,
-              leading: const Icon(Icons.assist_walker),
-              title: const Text('Non-negotiables'),
-              onTap: () {
-                _onItemTapped(1); // Navigate to Non-negotiables
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              selected: _selectedIndex == 2,
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                _onItemTapped(2); // Navigate to Settings
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              selected: _selectedIndex == 3,
-              leading: const Icon(Icons.help),
-              title: const Text('Help'),
-              onTap: () {
-                _onItemTapped(3); // Navigate to Help
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              selected: _selectedIndex == 4,
-              leading: const Icon(Icons.pregnant_woman),
-              title: const Text('Get Pregnant'),
-              onTap: () {
-                _onItemTapped(4); // Navigate to Pregnant
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Log Out'),
-              onTap: () {
-                FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
-              },
-            ),
-          ],
-        ),
+      drawer: AccountDrawer(
+        userName: userName,
+        userEmail: userEmail,
+        userImage: userImage,
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
       backgroundColor: Colors.black,
       body: IndexedStack(
@@ -225,7 +109,7 @@ class _CalendarPageState extends State<CalendarPage> {
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
         type: BottomNavigationBarType.fixed,
-        onTap: _onItemTapped, // Update _selectedIndex on tap
+        onTap: _onItemTapped,
         currentIndex: _selectedIndex,
         items: const [
           BottomNavigationBarItem(

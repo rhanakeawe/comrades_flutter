@@ -1,19 +1,29 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:Comrades/views/account/non-negotiables.dart';
+import 'package:Comrades/views/account/pregnant.dart';
+import 'package:Comrades/views/settings/settings.dart';
+import 'package:Comrades/views/account/help.dart';
+import 'package:Comrades/views/auth/loginpage.dart';
 
+class AccountDrawer extends StatelessWidget {
+  final String userName;
+  final String userEmail;
+  final String userImage;
+  final Function(int) onItemTapped;
+  final int selectedIndex;
 
-class AccountScreen extends StatefulWidget {
-  const AccountScreen({super.key});
+  const AccountDrawer({
+    required this.userName,
+    required this.userEmail,
+    required this.userImage,
+    required this.onItemTapped,
+    required this.selectedIndex,
+    Key? key,
+  }) : super(key: key);
 
-  @override
-  State<AccountScreen> createState() => _AccountScreenState();
-}
-
-class _AccountScreenState extends State<AccountScreen> {
   @override
   Widget build(BuildContext context) {
-    String userName = "Karl Marx";
-    String userEmail = "karlmarx@csu.fullerton.edu";
-
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -33,50 +43,48 @@ class _AccountScreenState extends State<AccountScreen> {
                 color: Colors.white70,
               ),
             ),
-            currentAccountPicture: const CircleAvatar(
-              backgroundImage: AssetImage('assets/profile_picture.jpg'), // Replace with your profile picture
+            currentAccountPicture: CircleAvatar(
+              backgroundImage: userImage.isNotEmpty
+                  ? NetworkImage(userImage)
+                  : const AssetImage('assets/profile_picture.jpg') as ImageProvider,
             ),
             decoration: const BoxDecoration(
               color: Colors.red, // Replace with preferred color
             ),
           ),
           ListTile(
+            selected: selectedIndex == 1,
             leading: const Icon(Icons.assist_walker),
             title: const Text('Non-negotiables'),
             onTap: () {
-              // Navigate to Files screen
+              onItemTapped(1); // Navigate to Non-negotiables
               Navigator.pop(context);
             },
           ),
           ListTile(
-            leading: const Icon(Icons.cake_outlined), // Changed icon
-            title: const Text('Idk'),
-            onTap: () {
-              // Navigate to Studio screen
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
+            selected: selectedIndex == 2,
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
             onTap: () {
-              // Navigate to Settings screen
+              onItemTapped(2); // Navigate to Settings
               Navigator.pop(context);
             },
           ),
           ListTile(
+            selected: selectedIndex == 3,
             leading: const Icon(Icons.help),
             title: const Text('Help'),
             onTap: () {
-              // Navigate to Help screen
+              onItemTapped(3); // Navigate to Help
               Navigator.pop(context);
             },
           ),
           ListTile(
+            selected: selectedIndex == 4,
             leading: const Icon(Icons.pregnant_woman),
             title: const Text('Get Pregnant'),
             onTap: () {
-              // Handle change user functionality
+              onItemTapped(4); // Navigate to Pregnant
               Navigator.pop(context);
             },
           ),
@@ -84,8 +92,11 @@ class _AccountScreenState extends State<AccountScreen> {
             leading: const Icon(Icons.logout),
             title: const Text('Log Out'),
             onTap: () {
-              // Handle log out functionality
-              Navigator.pop(context);
+              FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
             },
           ),
         ],

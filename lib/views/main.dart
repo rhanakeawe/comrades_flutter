@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasData) {
             // User is signed in
-            return const CalendarPage();
+            return const MainPage();
           } else {
             // User is not signed in
             return LoginPage();
