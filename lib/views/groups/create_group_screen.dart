@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class CreateGroupScreen extends StatefulWidget {
@@ -25,10 +26,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
     if (groupName.isNotEmpty && members.isNotEmpty) {
       // Add the group to Firebase Firestore
-      // FirebaseFirestore.instance.collection('groups').add({
-      //   'name': groupName,
-      //   'members': members,
-      // });
+       FirebaseFirestore.instance.collection('groups').add({
+         'name': groupName,
+         'members': members,
+       });
 
       Navigator.pop(context); // Navigate back to GroupsPage
     }
