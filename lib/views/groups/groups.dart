@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:Comrades/views/groups/create_group_screen.dart';
-import 'package:Comrades/views/groups/groupspage.dart';
 import 'package:getwidget/getwidget.dart';
+import 'groupcard.dart';
+import 'groupspage.dart';
 
 class Groups extends StatefulWidget {
   const Groups({super.key});
@@ -13,6 +14,7 @@ class Groups extends StatefulWidget {
 class _GroupsPageState extends State<Groups> {
   List<Map<String, dynamic>> groups = [
     {
+      // testers
       'name': 'Comrades',
       'description': 'The name of the app',
       'icon': Icons.people_alt,
@@ -32,7 +34,6 @@ class _GroupsPageState extends State<Groups> {
     },
   ];
 
-  // Function to add a new group
   void addGroup(String name, String description, String? backgroundImage) {
     setState(() {
       groups.add({
@@ -67,7 +68,6 @@ class _GroupsPageState extends State<Groups> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    // Navigate to the Create Group screen
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => CreateGroupScreen(),
@@ -91,18 +91,12 @@ class _GroupsPageState extends State<Groups> {
               itemCount: groups.length,
               itemBuilder: (context, index) {
                 final group = groups[index];
-                return GFListTile(
-                  titleText: group['name'],
-                  subTitleText: group['description'],
-                  icon: Icon(group['icon'], color: Colors.grey),
-                  color: Colors.white,
-                  avatar: GFAvatar(
-                    backgroundImage: group['backgroundImage'] != null
-                        ? AssetImage(group['backgroundImage'])
-                        : null,
-                  ),
+                return GroupCard(
+                  name: group['name'],
+                  description: group['description'],
+                  icon: group['icon'],
+                  backgroundImage: group['backgroundImage'],
                   onTap: () {
-                    // Navigate to the groups page
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => GroupsPage(

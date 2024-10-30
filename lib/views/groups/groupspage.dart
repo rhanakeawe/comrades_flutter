@@ -1,4 +1,3 @@
-// groupspage.dart
 import 'package:flutter/material.dart';
 
 class GroupsPage extends StatelessWidget {
