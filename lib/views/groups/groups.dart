@@ -25,10 +25,10 @@ class _GroupsPageState extends State<Groups> {
       'backgroundImage': 'assets/planet-apes.png',
     },
     {
-      'name': 'Neighborhood',
-      'description': 'All the people',
+      'name': 'Beaners',
+      'description': 'All the beans',
       'icon': Icons.people_alt,
-      'backgroundImage': 'assets/street-and-houses.jpg',
+      'backgroundImage': 'assets/Beans.png',
     },
   ];
 
