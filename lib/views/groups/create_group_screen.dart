@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class CreateGroupScreen extends StatefulWidget {
+  const CreateGroupScreen({super.key});
+
   @override
   _CreateGroupScreenState createState() => _CreateGroupScreenState();
 }
@@ -91,12 +93,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: createGroup,
-              child: Text('Create Group'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 textStyle: TextStyle(fontSize: 18),
               ),
+              child: Text('Create Group'),
             ),
           ],
         ),

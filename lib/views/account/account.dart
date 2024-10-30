@@ -1,9 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:Comrades/views/account/non-negotiables.dart';
-import 'package:Comrades/views/account/pregnant.dart';
-import 'package:Comrades/views/settings/settings.dart';
-import 'package:Comrades/views/account/help.dart';
 import 'package:Comrades/views/auth/loginpage.dart';
 
 class AccountDrawer extends StatelessWidget {
@@ -19,8 +15,8 @@ class AccountDrawer extends StatelessWidget {
     required this.userImage,
     required this.onItemTapped,
     required this.selectedIndex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -53,38 +49,38 @@ class AccountDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            selected: selectedIndex == 1,
+            selected: selectedIndex == 5,
             leading: const Icon(Icons.assist_walker),
             title: const Text('Non-negotiables'),
             onTap: () {
-              onItemTapped(1); // Navigate to Non-negotiables
+              onItemTapped(5); // Navigate to Non-negotiables
               Navigator.pop(context);
             },
           ),
           ListTile(
-            selected: selectedIndex == 2,
+            selected: selectedIndex == 6,
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
             onTap: () {
-              onItemTapped(2); // Navigate to Settings
+              onItemTapped(6); // Navigate to Settings
               Navigator.pop(context);
             },
           ),
           ListTile(
-            selected: selectedIndex == 3,
+            selected: selectedIndex == 7,
             leading: const Icon(Icons.help),
             title: const Text('Help'),
             onTap: () {
-              onItemTapped(3); // Navigate to Help
+              onItemTapped(7); // Navigate to Help
               Navigator.pop(context);
             },
           ),
           ListTile(
-            selected: selectedIndex == 4,
+            selected: selectedIndex == 8,
             leading: const Icon(Icons.pregnant_woman),
             title: const Text('Get Pregnant'),
             onTap: () {
-              onItemTapped(4); // Navigate to Pregnant
+              onItemTapped(8); // Navigate to Pregnant
               Navigator.pop(context);
             },
           ),

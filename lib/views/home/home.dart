@@ -1,14 +1,17 @@
+import 'package:Comrades/views/account/account_settings.dart';
 import 'package:Comrades/views/goals/goals.dart';
 import 'package:Comrades/views/inbox/inbox.dart';
 import 'package:Comrades/views/notifications/notifications.dart';
 import 'package:Comrades/views/settings/settings.dart';
+import 'package:Comrades/views/account/help.dart';
+import 'package:Comrades/views/account/non-negotiables.dart';
+import 'package:Comrades/views/account/pregnant.dart';
 import 'package:flutter/material.dart';
 import 'package:Comrades/views/account/account.dart';
 import 'package:Comrades/views/groups/groups.dart';
 import 'package:Comrades/views/calendar/calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -25,16 +28,24 @@ class _MainPageState extends State<MainPage> {
   String userImage = "";
 
   List<Widget> widgetList = [
-    GroupsPage(),         // index 0 -> Groups Page
-    CalendarPage(),       // index 1 -> Calendar Page
-    GoalsPage(),          // index 2 -> Groups Page
-    NotificationsPage(),  // index 3 -> Notifications Page
-    InboxPage(),          // index 4 -> Inbox Page
+    GroupsPage(), // index 0 -> Groups Page
+    CalendarPage(), // index 1 -> Calendar Page
+    GoalsPage(), // index 2 -> Groups Page
+    NotificationsPage(), // index 3 -> Notifications Page
+    InboxPage(), // index 4 -> Inbox Page
+    Non_negotiables(),
+    Account_Settings(),
+    Help(),
+    Pregnant(),
   ];
 
   void getUserData() {
-    db.collection("users").where("email", isEqualTo: FirebaseAuth.instance.currentUser?.email).get().then(
-          (users) {
+    db
+        .collection("users")
+        .where("email", isEqualTo: FirebaseAuth.instance.currentUser?.email)
+        .get()
+        .then(
+      (users) {
         print("Successfully queried user!");
         for (var user in users.docs) {
           setState(() {
@@ -52,6 +63,8 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _selectedIndex = index;
     });
+    String string = "$index / ${widgetList.length}";
+    print(string);
   }
 
   @override
@@ -98,7 +111,7 @@ class _MainPageState extends State<MainPage> {
         userName: userName,
         userEmail: userEmail,
         userImage: userImage,
-        selectedIndex: _selectedIndex,
+        selectedIndex: _selectedIndex > 4 ? _selectedIndex : 0,
         onItemTapped: _onItemTapped,
       ),
       backgroundColor: Colors.black,
@@ -110,7 +123,10 @@ class _MainPageState extends State<MainPage> {
         backgroundColor: Colors.white,
         type: BottomNavigationBarType.fixed,
         onTap: _onItemTapped,
-        currentIndex: _selectedIndex,
+        currentIndex: _selectedIndex <= 4 ? _selectedIndex : 0,
+        //userImage.isNotEmpty
+        //                   ? NetworkImage(userImage)
+        //                   : const AssetImage('assets/profile_picture.jpg') as ImageProvider
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_rounded),

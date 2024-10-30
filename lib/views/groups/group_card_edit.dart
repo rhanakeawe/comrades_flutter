@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class GroupCardEditScreen extends StatelessWidget {
   final String groupName;
 
-  GroupCardEditScreen({required this.groupName});
+  const GroupCardEditScreen({super.key, required this.groupName});
 
   @override
   Widget build(BuildContext context) {

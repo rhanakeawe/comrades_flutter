@@ -63,7 +63,7 @@ class GroupsPage extends StatelessWidget {
                     backgroundImage:
                         AssetImage('assets/Joseph-Stalin-1950.png')),
                 //Todo: onTap go to group page
-                //onTap: ,
+                onTap: (){},
               ),
               GFListTile(
                 titleText: 'Apes',
@@ -74,8 +74,7 @@ class GroupsPage extends StatelessWidget {
                 ),
                 color: Colors.brown,
                 avatar: GFAvatar(
-                    backgroundImage:
-                    AssetImage('assets/planet-apes.png')),
+                    backgroundImage: AssetImage('assets/planet-apes.png')),
               ),
               GFListTile(
                 titleText: 'Neighborhood',
@@ -87,7 +86,7 @@ class GroupsPage extends StatelessWidget {
                 color: Colors.white,
                 avatar: GFAvatar(
                     backgroundImage:
-                    AssetImage('assets/street-and-houses.jpg')),
+                        AssetImage('assets/street-and-houses.jpg')),
               ),
             ]),
             // child: Padding(
