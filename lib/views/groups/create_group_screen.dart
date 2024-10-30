@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class CreateGroupScreen extends StatefulWidget {
@@ -10,30 +9,23 @@ class CreateGroupScreen extends StatefulWidget {
 
 class _CreateGroupScreenState extends State<CreateGroupScreen> {
   final TextEditingController _groupNameController = TextEditingController();
-  final TextEditingController _memberEmailController = TextEditingController();
-  List<String> members = [];
-
-  void addMember() {
-    if (_memberEmailController.text.isNotEmpty) {
-      setState(() {
-        members.add(_memberEmailController.text);
-        _memberEmailController.clear();
-      });
-    }
-  }
+  final TextEditingController _groupDescriptionController = TextEditingController();
+  String? backgroundImage;
 
   void createGroup() {
-    // Handle creating the group in Firebase
-    final String groupName = _groupNameController.text;
+    final name = _groupNameController.text;
+    final description = _groupDescriptionController.text;
 
-    if (groupName.isNotEmpty && members.isNotEmpty) {
-      // Add the group to Firebase Firestore
-       FirebaseFirestore.instance.collection('groups').add({
-         'name': groupName,
-         'members': members,
-       });
-
-      Navigator.pop(context); // Navigate back to GroupsPage
+    if (name.isNotEmpty && description.isNotEmpty) {
+      Navigator.pop(context, {
+        'name': name,
+        'description': description,
+        'backgroundImage': backgroundImage,
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter both a name and description')),
+      );
     }
   }
 
@@ -42,7 +34,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Create New Group'),
-        backgroundColor: Colors.red,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -56,49 +47,29 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             TextField(
-              controller: _memberEmailController,
+              controller: _groupDescriptionController,
               decoration: InputDecoration(
-                labelText: 'Member Email',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: addMember,
-                ),
+                labelText: 'Group Description',
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: members.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      members[index],
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.remove_circle, color: Colors.red),
-                      onPressed: () {
-                        setState(() {
-                          members.removeAt(index);
-                        });
-                      },
-                    ),
-                  );
-                },
-              ),
+            const SizedBox(height: 16),
+            // Placeholder for adding a background image
+            TextButton(
+              onPressed: () {
+                // needs logic for picking an image here
+                setState(() {
+                  backgroundImage = 'assets/sample_image.png'; // gotta add a test pic
+                });
+              },
+              child: Text('Select Background Image'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: createGroup,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                textStyle: TextStyle(fontSize: 18),
-              ),
-              child: Text('Create Group'),
+              child: Text('Save Group'),
             ),
           ],
         ),

@@ -1,111 +1,98 @@
+// groupspage.dart
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CreateGroupScreen extends StatefulWidget {
-  const CreateGroupScreen({super.key});
+class GroupsPage extends StatelessWidget {
+  final String groupName;
+  final String? backgroundImage;
 
-  @override
-  _CreateGroupScreenState createState() => _CreateGroupScreenState();
-}
-
-class _CreateGroupScreenState extends State<CreateGroupScreen> {
-  final TextEditingController _groupNameController = TextEditingController();
-  final TextEditingController _memberEmailController = TextEditingController();
-  List<String> members = [];
-
-  void addMember() {
-    if (_memberEmailController.text.isNotEmpty) {
-      setState(() {
-        members.add(_memberEmailController.text);
-        _memberEmailController.clear();
-      });
-    }
-  }
-
-  void createGroup() {
-    final String groupName = _groupNameController.text;
-
-    if (groupName.isNotEmpty && members.isNotEmpty) {
-      FirebaseFirestore.instance.collection('groups').add({
-        'name': groupName,
-        'members': members,
-      }).then((value) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Group Created Successfully')),
-        );
-        Navigator.pop(context); // Navigate back to GroupsPage
-      }).catchError((error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create group: $error')),
-        );
-      });
-    }
-  }
+  const GroupsPage({
+    super.key,
+    required this.groupName,
+    this.backgroundImage,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create New Group'),
-        backgroundColor: Colors.red,
+        title: Text(groupName),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _groupNameController,
-              decoration: InputDecoration(
-                labelText: 'Group Name',
-                border: OutlineInputBorder(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Group header with background image or default color
+          Container(
+            height: 200,
+            decoration: BoxDecoration(
+              color: Colors.grey,
+              image: backgroundImage != null
+                  ? DecorationImage(
+                image: AssetImage(backgroundImage!),
+                fit: BoxFit.cover,
+              )
+                  : null,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              groupName,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _memberEmailController,
-              decoration: InputDecoration(
-                labelText: 'Member Email',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: addMember,
-                ),
-                border: OutlineInputBorder(),
-              ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              children: [
+                _buildMenuItem(context, 'Home', Icons.home),
+                _buildMenuItem(context, 'Announcements', Icons.announcement),
+                _buildMenuItem(context, 'Goals', Icons.description),
+                _buildMenuItem(context, 'To Do\'s', Icons.restore_from_trash)
+                // what else should I add?
+              ],
             ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: members.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      members[index],
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.remove_circle, color: Colors.red),
-                      onPressed: () {
-                        setState(() {
-                          members.removeAt(index);
-                        });
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: createGroup,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                textStyle: TextStyle(fontSize: 18),
-              ),
-              child: Text('Create Group'),
-            ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper method to create each menu item
+  Widget _buildMenuItem(BuildContext context, String title, IconData icon) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(title, style: TextStyle(color: Colors.white)),
+      trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SectionPage(title: title), // Placeholder for each section page
+          ),
+        );
+      },
+    );
+  }
+}
+
+// Placeholder for each section in GroupsPage
+class SectionPage extends StatelessWidget {
+  final String title;
+
+  const SectionPage({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: Text(
+          'Welcome to the $title section!', // pretty useful the $title
+          style: TextStyle(fontSize: 24),
         ),
       ),
     );

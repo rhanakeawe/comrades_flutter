@@ -28,7 +28,7 @@ class _MainPageState extends State<MainPage> {
   String userImage = "";
 
   List<Widget> widgetList = [
-    GroupsPage(), // index 0 -> Groups Page
+    Groups(), // index 0 -> Groups Page
     CalendarPage(), // index 1 -> Calendar Page
     GoalsPage(), // index 2 -> Groups Page
     NotificationsPage(), // index 3 -> Notifications Page
