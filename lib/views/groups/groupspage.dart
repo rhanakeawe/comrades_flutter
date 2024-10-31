@@ -61,8 +61,8 @@ class GroupsPage extends StatelessWidget {
   // Helper method to create each menu item
   Widget _buildMenuItem(BuildContext context, String title, IconData icon) {
     return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(title, style: TextStyle(color: Colors.white)),
+      leading: Icon(icon, color: Colors.redAccent),
+      title: Text(title, style: TextStyle(color: Colors.black)),
       trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
       onTap: () {
         Navigator.push(
