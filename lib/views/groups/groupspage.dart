@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 
+import 'groupMembers.dart';
+
 class GroupsPage extends StatelessWidget {
   final String groupName;
+  final String groupID;
   final String? backgroundImage;
 
   const GroupsPage({
     super.key,
     required this.groupName,
+    required this.groupID,
     this.backgroundImage,
   });
 
@@ -14,7 +18,7 @@ class GroupsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(groupName),
+        title: Text(groupID),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -46,9 +50,20 @@ class GroupsPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               children: [
                 _buildMenuItem(context, 'Home', Icons.home),
+                ListTile(
+                  leading: Icon(Icons.people, color: Colors.redAccent),
+                  title: Text("Members", style: TextStyle(color: Colors.black)),
+                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => GroupMembersPage(groupID: groupID,)),
+                    );
+                  },
+                ),
                 _buildMenuItem(context, 'Announcements', Icons.announcement),
                 _buildMenuItem(context, 'Goals', Icons.description),
-                _buildMenuItem(context, 'To Do\'s', Icons.restore_from_trash)
+                _buildMenuItem(context, 'To Do\'s', Icons.restore_from_trash),
                 // what else should I add?
               ],
             ),

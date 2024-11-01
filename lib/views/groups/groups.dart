@@ -18,25 +18,6 @@ class _GroupsPageState extends State<Groups> {
 
   List<Map<String, dynamic>> groups = [];
 
-  // List<Map<String, dynamic>> groups = [
-  //   {
-  //     // testers
-  //     'name': 'Comrades',
-  //     'description': 'The name of the app',
-  //     'backgroundImage': 'assets/Joseph-Stalin-1950.png',
-  //   },
-  //   {
-  //     'name': 'Apes',
-  //     'description': 'Together Strong!',
-  //     'backgroundImage': 'assets/planet-apes.png',
-  //   },
-  //   {
-  //     'name': 'Beaners',
-  //     'description': 'All the beans',
-  //     'backgroundImage': 'assets/Beans.png',
-  //   },
-  // ];
-
   void getGroups() {
     db
         .collection("groupUserList")
@@ -57,7 +38,7 @@ class _GroupsPageState extends State<Groups> {
               for (var group in groups.docs) {
                 print(group.data());
                 addGroup(group.data()["groupName"], group.data()["groupDesc"],
-                    group.data()["groupPhotoURL"]);
+                    group.data()["groupPhotoURL"], group.data()["group_ID"]);
               }
             },
             onError: (e) => print("Error completing: $e"),
@@ -68,8 +49,8 @@ class _GroupsPageState extends State<Groups> {
     );
   }
 
-  Future<void> addGroup(
-      String name, String description, String? backgroundImage) async {
+  Future<void> addGroup(String name, String description,
+      String? backgroundImage, String group_ID) async {
     final gsReference = FirebaseStorage.instance.refFromURL(backgroundImage!);
     String url = await gsReference.getDownloadURL();
 
@@ -79,6 +60,7 @@ class _GroupsPageState extends State<Groups> {
         'description': description,
         'icon': Icons.group,
         'backgroundImage': url,
+        'group_ID': group_ID,
       });
     });
   }
@@ -141,6 +123,7 @@ class _GroupsPageState extends State<Groups> {
                       MaterialPageRoute(
                         builder: (context) => GroupsPage(
                           groupName: group['name'],
+                          groupID: group['group_ID'],
                           backgroundImage: group['backgroundImage'],
                         ),
                       ),
