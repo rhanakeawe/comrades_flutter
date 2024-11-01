@@ -26,7 +26,7 @@ class GroupsPage extends StatelessWidget {
               color: Colors.grey,
               image: backgroundImage != null
                   ? DecorationImage(
-                image: AssetImage(backgroundImage!),
+                image: NetworkImage(backgroundImage!),
                 fit: BoxFit.cover,
               )
                   : null,

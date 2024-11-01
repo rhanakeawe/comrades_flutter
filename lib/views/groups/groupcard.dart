@@ -4,7 +4,6 @@ import 'package:getwidget/getwidget.dart';
 class GroupCard extends StatelessWidget {
   final String name;
   final String description;
-  final IconData icon;
   final String? backgroundImage;
   final VoidCallback onTap;
 
@@ -12,7 +11,6 @@ class GroupCard extends StatelessWidget {
     super.key,
     required this.name,
     required this.description,
-    required this.icon,
     this.backgroundImage,
     required this.onTap,
   });
@@ -22,10 +20,10 @@ class GroupCard extends StatelessWidget {
     return GFListTile(
       titleText: name,
       subTitleText: description,
-      icon: Icon(icon, color: Colors.grey),
+      icon: Icon(Icons.people_alt, color: Colors.grey),
       color: Colors.white,
       avatar: GFAvatar(
-        backgroundImage: backgroundImage != null ? AssetImage(backgroundImage!) : null,
+        backgroundImage: backgroundImage != null ? NetworkImage(backgroundImage!) : null,
       ),
       onTap: onTap,
     );

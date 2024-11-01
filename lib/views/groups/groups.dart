@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:Comrades/views/groups/create_group_screen.dart';
-import 'package:getwidget/getwidget.dart';
 import 'groupcard.dart';
 import 'groupspage.dart';
 
@@ -12,41 +14,80 @@ class Groups extends StatefulWidget {
 }
 
 class _GroupsPageState extends State<Groups> {
-  List<Map<String, dynamic>> groups = [
-    {
-      // testers
-      'name': 'Comrades',
-      'description': 'The name of the app',
-      'icon': Icons.people_alt,
-      'backgroundImage': 'assets/Joseph-Stalin-1950.png',
-    },
-    {
-      'name': 'Apes',
-      'description': 'Together Strong!',
-      'icon': Icons.people_alt,
-      'backgroundImage': 'assets/planet-apes.png',
-    },
-    {
-      'name': 'Beaners',
-      'description': 'All the beans',
-      'icon': Icons.people_alt,
-      'backgroundImage': 'assets/Beans.png',
-    },
-  ];
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
-  void addGroup(String name, String description, String? backgroundImage) {
+  List<Map<String, dynamic>> groups = [];
+
+  // List<Map<String, dynamic>> groups = [
+  //   {
+  //     // testers
+  //     'name': 'Comrades',
+  //     'description': 'The name of the app',
+  //     'backgroundImage': 'assets/Joseph-Stalin-1950.png',
+  //   },
+  //   {
+  //     'name': 'Apes',
+  //     'description': 'Together Strong!',
+  //     'backgroundImage': 'assets/planet-apes.png',
+  //   },
+  //   {
+  //     'name': 'Beaners',
+  //     'description': 'All the beans',
+  //     'backgroundImage': 'assets/Beans.png',
+  //   },
+  // ];
+
+  void getGroups() {
+    db
+        .collection("groupUserList")
+        .where("userEmail", isEqualTo: FirebaseAuth.instance.currentUser?.email)
+        .get()
+        .then(
+      (groupUsers) {
+        print("Successfully queried groupUser!");
+        for (var groupUser in groupUsers.docs) {
+          print(groupUser.data());
+          db
+              .collection("groups")
+              .where("group_ID", isEqualTo: groupUser.data()["ID_group"])
+              .get()
+              .then(
+            (groups) {
+              print("Successfully queried group!");
+              for (var group in groups.docs) {
+                print(group.data());
+                addGroup(group.data()["groupName"], group.data()["groupDesc"],
+                    group.data()["groupPhotoURL"]);
+              }
+            },
+            onError: (e) => print("Error completing: $e"),
+          );
+        }
+      },
+      onError: (e) => print("Error completing: $e"),
+    );
+  }
+
+  Future<void> addGroup(
+      String name, String description, String? backgroundImage) async {
+    final gsReference = FirebaseStorage.instance.refFromURL(backgroundImage!);
+    String url = await gsReference.getDownloadURL();
+
     setState(() {
       groups.add({
         'name': name,
         'description': description,
         'icon': Icons.group,
-        'backgroundImage': backgroundImage,
+        'backgroundImage': url,
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (groups.isEmpty) {
+      getGroups();
+    }
     return Scaffold(
       backgroundColor: Colors.black,
       body: Column(
@@ -94,7 +135,6 @@ class _GroupsPageState extends State<Groups> {
                 return GroupCard(
                   name: group['name'],
                   description: group['description'],
-                  icon: group['icon'],
                   backgroundImage: group['backgroundImage'],
                   onTap: () {
                     Navigator.of(context).push(
