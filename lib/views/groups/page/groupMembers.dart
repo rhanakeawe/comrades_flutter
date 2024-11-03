@@ -1,4 +1,4 @@
-import 'package:Comrades/views/groups/groupAddMember.dart';
+import 'package:Comrades/views/groups/page/groupAddMember.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/avatar/gf_avatar.dart';
@@ -64,7 +64,8 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.grey,
+        backgroundColor: Colors.redAccent,
+        title: Text("Members", style: TextStyle(fontSize: 20, color: Colors.white),),
       ),
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SizedBox(height: 10),

@@ -50,7 +50,7 @@ class _GroupsPageState extends State<Groups> {
   }
 
   Future<void> addGroup(String name, String description,
-      String? backgroundImage, String group_ID) async {
+      String? backgroundImage, String groupId) async {
     final gsReference = FirebaseStorage.instance.refFromURL(backgroundImage!);
     String url = await gsReference.getDownloadURL();
 
@@ -60,7 +60,7 @@ class _GroupsPageState extends State<Groups> {
         'description': description,
         'icon': Icons.group,
         'backgroundImage': url,
-        'group_ID': group_ID,
+        'group_ID': groupId,
       });
     });
   }

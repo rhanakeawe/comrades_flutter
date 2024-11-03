@@ -1,6 +1,10 @@
+import 'package:Comrades/views/groups/page/groupAnnouncements.dart';
+import 'package:Comrades/views/groups/page/groupGoals.dart';
+import 'package:Comrades/views/groups/page/groupHome.dart';
+import 'package:Comrades/views/groups/page/groupTodos.dart';
 import 'package:flutter/material.dart';
 
-import 'groupMembers.dart';
+import 'page/groupMembers.dart';
 
 class GroupsPage extends StatelessWidget {
   final String groupName;
@@ -30,9 +34,9 @@ class GroupsPage extends StatelessWidget {
               color: Colors.grey,
               image: backgroundImage != null
                   ? DecorationImage(
-                image: NetworkImage(backgroundImage!),
-                fit: BoxFit.cover,
-              )
+                      image: NetworkImage(backgroundImage!),
+                      fit: BoxFit.cover,
+                    )
                   : null,
             ),
             alignment: Alignment.center,
@@ -49,21 +53,22 @@ class GroupsPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               children: [
-                _buildMenuItem(context, 'Home', Icons.home),
-                ListTile(
-                  leading: Icon(Icons.people, color: Colors.redAccent),
-                  title: Text("Members", style: TextStyle(color: Colors.black)),
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => GroupMembersPage(groupID: groupID,)),
-                    );
-                  },
-                ),
-                _buildMenuItem(context, 'Announcements', Icons.announcement),
-                _buildMenuItem(context, 'Goals', Icons.description),
-                _buildMenuItem(context, 'To Do\'s', Icons.restore_from_trash),
+                _buildMenuItem(context, GroupHomePage(groupID: groupID),
+                    Icon(Icons.home, color: Colors.redAccent), "Home"),
+                _buildMenuItem(context, GroupMembersPage(groupID: groupID),
+                    Icon(Icons.people, color: Colors.redAccent), "Members"),
+                _buildMenuItem(
+                    context,
+                    GroupAnnouncementsPage(groupID: groupID),
+                    Icon(Icons.announcement, color: Colors.redAccent),
+                    "Announcements"),
+                _buildMenuItem(context, GroupGoalsPage(groupID: groupID),
+                    Icon(Icons.description, color: Colors.redAccent), "Goals"),
+                _buildMenuItem(
+                    context,
+                    GroupTodosPage(groupID: groupID),
+                    Icon(Icons.restore_from_trash, color: Colors.redAccent),
+                    "To-Dos"),
                 // what else should I add?
               ],
             ),
@@ -73,42 +78,18 @@ class GroupsPage extends StatelessWidget {
     );
   }
 
-  // Helper method to create each menu item
-  Widget _buildMenuItem(BuildContext context, String title, IconData icon) {
+  Widget _buildMenuItem(
+      BuildContext context, Widget widget, Icon icon, String title) {
     return ListTile(
-      leading: Icon(icon, color: Colors.redAccent),
+      leading: icon,
       title: Text(title, style: TextStyle(color: Colors.black)),
       trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => SectionPage(title: title), // Placeholder for each section page
-          ),
+          MaterialPageRoute(builder: (context) => widget),
         );
       },
-    );
-  }
-}
-
-// Placeholder for each section in GroupsPage
-class SectionPage extends StatelessWidget {
-  final String title;
-
-  const SectionPage({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Text(
-          'Welcome to the $title section!', // pretty useful the $title
-          style: TextStyle(fontSize: 24),
-        ),
-      ),
     );
   }
 }

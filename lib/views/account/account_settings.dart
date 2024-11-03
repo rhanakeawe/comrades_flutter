@@ -6,12 +6,10 @@ class Account_Settings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Text(
-          'Account_Settings',
-          style: GoogleFonts.teko(color: Colors.white, fontSize: 48),
-        ),
+    return Center(
+      child: Text(
+        'Account_Settings',
+        style: GoogleFonts.teko(color: Colors.white, fontSize: 48),
       ),
     );
   }
