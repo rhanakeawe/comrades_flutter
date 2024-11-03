@@ -1,3 +1,4 @@
+import 'package:Comrades/views/groups/groupAddMember.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/avatar/gf_avatar.dart';
@@ -44,8 +45,9 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
           print(user.data());
           setState(() {
             members.add({
-            'name': user.data()["name"],
-            'photo': user.data()["profilepic"]
+              'name': user.data()["name"],
+              'photo': user.data()["profilepic"],
+              'email': user.data()["email"]
             });
           });
         }
@@ -66,6 +68,41 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
       ),
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Groups',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => GroupAddMember(
+                        groupID: widget.groupID,
+                        members: members,
+                      ),
+                    ),
+                  );
+                },
+                child: Text(
+                  '+ Add Member',
+                  style: TextStyle(
+                    color: Colors.blueAccent,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         Expanded(
             child: ListView.builder(
                 itemCount: members.length,
