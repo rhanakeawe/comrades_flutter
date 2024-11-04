@@ -20,6 +20,12 @@ class _GroupAddMemberState extends State<GroupAddMember> {
   List<Map<String, dynamic>> userList = [];
   List userNames = [];
 
+  @override
+  void initState() {
+    super.initState();
+    findUsers();
+  }
+
   void findUsers() {
     db.collection("users").get().then(
       (users) {
@@ -67,9 +73,6 @@ class _GroupAddMemberState extends State<GroupAddMember> {
 
   @override
   Widget build(BuildContext context) {
-    if (userList.isEmpty) {
-      findUsers();
-    }
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

@@ -1,3 +1,4 @@
+import 'package:Comrades/views/groups/page/groupAddGoal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/list_tile/gf_list_tile.dart';
@@ -62,6 +63,23 @@ class _GroupGoalsPageState extends State<GroupGoalsPage> {
       ),
       body: Column(
         children: [
+          SizedBox(height: 16,),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => GroupAddGoal(groupID: widget.groupID, goals: goals),
+                ),
+              );
+            },
+            child: Text(
+              '+ Add Goal',
+              style: TextStyle(
+                color: Colors.blueAccent,
+                fontSize: 16,
+              ),
+            ),
+          ),
           SizedBox(height: 10,),
           Expanded(
               child: ListView.builder(
