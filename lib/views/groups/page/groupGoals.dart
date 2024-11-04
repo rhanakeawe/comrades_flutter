@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/list_tile/gf_list_tile.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:Comrades/querylist.dart';
 
 class GroupGoalsPage extends StatefulWidget {
   final String groupID;
@@ -16,42 +17,39 @@ class GroupGoalsPage extends StatefulWidget {
 }
 
 class _GroupGoalsPageState extends State<GroupGoalsPage> {
+  final QueryList _queryList = QueryList();
 
-  List<Map<String, dynamic>> goals = [
-    {
-      'dayCount': "10",
-      'dayStart': "12/02/1000",
-      'name': "First Goal",
-      'text': "This is the first goal of many!",
-      'userEmail': 'rhanakeawe@gmail.com'
-    },
-    {
-      'dayCount': "12",
-      'dayStart': "2/02/1002",
-      'name': "Second Goal",
-      'text': "This is the second goal of many!",
-      'userEmail': 'example@gmail.com'
-    }
-  ];
-
-  QuerySnapshot<Map<String, dynamic>> queryList(String collection, String field, String value){
-    QuerySnapshot<Map<String, dynamic>> output = [] as QuerySnapshot<Map<String, dynamic>>;
-    return output;
+  @override
+  void initState() {
+    super.initState();
+    getGoals();
   }
 
-  void getGoals() {
-    var goalQueryList = queryList("goals", "ID_group", widget.groupID);
-    for (var goal in goalQueryList.docs) {
-      print(goal.data());
-      setState(() {
-        goals.add({
-          'dayCount': goal.data()["goalDayCount"],
-          'dayStart': goal.data()["goalDayStart"],
-          'name': goal.data()["goalName"],
-          'text': goal.data()["goalText"]
+  List<Map<String, dynamic>> goals = [];
+
+  Future<void> getGoals() async {
+    try {
+      // Fetch group users based on group ID
+      QuerySnapshot<Map<String, dynamic>> groupUsersSnapshot =
+      await _queryList.fetchList(
+        "goals",
+        "ID_group",
+        widget.groupID,
+      );
+
+      for (var goal in groupUsersSnapshot.docs) {
+        print(goal.data());
+        setState(() {
+          goals.add({
+            'dayCount': goal.data()["goalDayCount"],
+            'dayStart': goal.data()["goalDayStart"],
+            'name': goal.data()["goalName"],
+            'text': goal.data()["goalText"],
+            'email': goal.data()["userEmail"],
+          });
         });
-      });
-    }
+      }
+    } catch (e) {}
   }
 
   @override
@@ -71,8 +69,15 @@ class _GroupGoalsPageState extends State<GroupGoalsPage> {
                   itemBuilder: (context, index) {
                     final goal = goals[index];
                     return GFListTile(
-                      title: Text(goal['name'], style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700)),
-                      subTitle: Text(goal['text'], style: GoogleFonts.poppins(fontSize: 15)),
+                      title: Center(
+                        child: Column(
+                          children: [
+                            Text(goal['name'], style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700)),
+                            Text(goal['email'], style: GoogleFonts.poppins(fontSize: 13, fontStyle: FontStyle.italic)),
+                            Text(goal['text'], style: GoogleFonts.poppins(fontSize: 15)),
+                          ],
+                        ),
+                      ),
                       description: Padding(
                         padding: const EdgeInsets.all(15.0),
                         child: Column(

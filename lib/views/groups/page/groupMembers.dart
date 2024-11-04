@@ -24,17 +24,17 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
   @override
   void initState() {
     super.initState();
-    getMembers(widget.groupID);
+    getMembers();
   }
 
-  Future<void> getMembers(String groupID) async {
+  Future<void> getMembers() async {
     try {
       // Fetch group users based on group ID
       QuerySnapshot<Map<String, dynamic>> groupUsersSnapshot =
           await _queryList.fetchList(
         "groupUserList",
         "ID_group",
-        groupID,
+        widget.groupID,
       );
 
       for (var groupUser in groupUsersSnapshot.docs) {
