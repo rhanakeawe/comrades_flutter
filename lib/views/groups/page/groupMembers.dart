@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/avatar/gf_avatar.dart';
 import 'package:getwidget/components/list_tile/gf_list_tile.dart';
+import 'package:Comrades/querylist.dart';
 
 class GroupMembersPage extends StatefulWidget {
   final String groupID;
@@ -17,43 +18,51 @@ class GroupMembersPage extends StatefulWidget {
 }
 
 class _GroupMembersPageState extends State<GroupMembersPage> {
-  FirebaseFirestore db = FirebaseFirestore.instance;
+  final QueryList _queryList = QueryList();
   List<Map<String, dynamic>> members = [];
 
-  void getMembers(String groupID) {
-    db
-        .collection("groupUserList")
-        .where("ID_group", isEqualTo: groupID)
-        .get()
-        .then(
-      (groupUsers) {
-        print("Successfully queried group!");
-        for (var groupUser in groupUsers.docs) {
-          print(groupUser.data());
-          addUser(groupUser.data()["userEmail"]);
-        }
-      },
-      onError: (e) => print("Error completing: $e"),
-    );
+  @override
+  void initState() {
+    super.initState();
+    getMembers(widget.groupID);
+  }
+
+  Future<void> getMembers(String groupID) async {
+    try {
+      // Fetch group users based on group ID
+      QuerySnapshot<Map<String, dynamic>> groupUsersSnapshot =
+          await _queryList.fetchList(
+        "groupUserList",
+        "ID_group",
+        groupID,
+      );
+
+      for (var groupUser in groupUsersSnapshot.docs) {
+        await addUser(groupUser.data()["userEmail"]);
+      }
+    } catch (e) {}
   }
 
   Future<void> addUser(String userEmail) async {
-    db.collection("users").where("email", isEqualTo: userEmail).get().then(
-      (users) {
-        print("Successfully queried user!");
-        for (var user in users.docs) {
-          print(user.data());
-          setState(() {
-            members.add({
-              'name': user.data()["name"],
-              'photo': user.data()["profilepic"],
-              'email': user.data()["email"]
-            });
+    try {
+      // Fetch user based on email
+      QuerySnapshot<Map<String, dynamic>> userSnapshot =
+          await _queryList.fetchList(
+        "users",
+        "email",
+        userEmail,
+      );
+
+      for (var user in userSnapshot.docs) {
+        setState(() {
+          members.add({
+            'name': user.data()["name"],
+            'photo': user.data()["profilepic"],
+            'email': user.data()["email"]
           });
-        }
-      },
-      onError: (e) => print("Error completing: $e"),
-    );
+        });
+      }
+    } catch (e) {}
   }
 
   @override
@@ -65,7 +74,10 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.redAccent,
-        title: Text("Members", style: TextStyle(fontSize: 20, color: Colors.white),),
+        title: Text(
+          "Members",
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
       ),
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SizedBox(height: 10),
