@@ -67,9 +67,6 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (members.isEmpty) {
-      getMembers(widget.groupID);
-    }
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
