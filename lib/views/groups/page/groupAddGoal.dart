@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class GroupAddGoal extends StatefulWidget {
   final String groupID;
@@ -21,8 +22,6 @@ class _GroupAddGoalState extends State<GroupAddGoal> {
   void dispose() {
     nameController.dispose();
     descController.dispose();
-    startController.dispose();
-    endController.dispose();
     super.dispose();
   }
 
@@ -41,11 +40,11 @@ class _GroupAddGoalState extends State<GroupAddGoal> {
     }
   }
 
-  void addGoal(String name, String desc, String dayStart, String dayEnd) {
-    final inputGoal = <String, String>{
+  void addGoal(String name, String desc, DateTime dayStart, DateTime dayEnd) {
+    final inputGoal = <String, dynamic>{
       'ID_group': widget.groupID,
-      'goalDayCount': dayEnd,
       'goalDayStart': dayStart,
+      'goalDayEnd': dayEnd,
       'goalName': name,
       'goalText': desc,
       'userEmail': currentUser!
@@ -57,8 +56,12 @@ class _GroupAddGoalState extends State<GroupAddGoal> {
 
   final nameController = TextEditingController();
   final descController = TextEditingController();
-  final startController = TextEditingController();
-  final endController = TextEditingController();
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOn;
+  DateTime _focusedDate = DateTime.now();
+  DateTime? _selectedDay;
+  DateTime? _rangeStart;
+  DateTime? _rangeEnd;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,7 +74,7 @@ class _GroupAddGoalState extends State<GroupAddGoal> {
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -97,33 +100,41 @@ class _GroupAddGoalState extends State<GroupAddGoal> {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("DayStart"),
+              child: Text("Date Select"),
             ),
-            TextField(
-              controller: startController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'DayStart',
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text("DayEnd"),
-            ),
-            TextField(
-              controller: endController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'DayEnd',
-              ),
-            ),
+            TableCalendar(
+              focusedDay: _focusedDate,
+              firstDay: DateTime.now(),
+              lastDay: DateTime(3000, 1, 1),
+              rangeStartDay: _rangeStart,
+              rangeEndDay: _rangeEnd,
+              calendarFormat: _calendarFormat,
+              rangeSelectionMode: _rangeSelectionMode,
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDate = focusedDay;
+                  _rangeStart = null;
+                  _rangeEnd = null;
+                  _rangeSelectionMode = RangeSelectionMode.toggledOff;
+                });
+              },
+              onRangeSelected: (start, end, focusedDay) {
+                setState(() {
+                  _selectedDay = null;
+                  _focusedDate = focusedDay;
+                  _rangeStart = start;
+                  _rangeEnd = end;
+                  _rangeSelectionMode = RangeSelectionMode.toggledOn;
+                });
+              },
+            )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          addGoal(nameController.text, descController.text,
-              startController.text, endController.text);
+          addGoal(nameController.text, descController.text, _rangeStart!, _rangeEnd!);
         },
         child: Text("Enter"),
       ),

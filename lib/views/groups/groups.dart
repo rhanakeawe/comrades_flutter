@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:Comrades/views/groups/create_group_screen.dart';
+import '../../querylist.dart';
 import 'groupcard.dart';
 import 'groupspage.dart';
 
@@ -15,38 +16,32 @@ class Groups extends StatefulWidget {
 
 class _GroupsPageState extends State<Groups> {
   FirebaseFirestore db = FirebaseFirestore.instance;
-
+  final QueryList _queryList = QueryList();
   List<Map<String, dynamic>> groups = [];
 
-  void getGroups() {
-    db
-        .collection("groupUserList")
-        .where("userEmail", isEqualTo: FirebaseAuth.instance.currentUser?.email)
-        .get()
-        .then(
-      (groupUsers) {
-        print("Successfully queried groupUser!");
-        for (var groupUser in groupUsers.docs) {
-          print(groupUser.data());
-          db
-              .collection("groups")
-              .where("group_ID", isEqualTo: groupUser.data()["ID_group"])
-              .get()
-              .then(
-            (groups) {
-              print("Successfully queried group!");
-              for (var group in groups.docs) {
-                print(group.data());
-                addGroup(group.data()["groupName"], group.data()["groupDesc"],
-                    group.data()["groupPhotoURL"], group.data()["group_ID"]);
-              }
-            },
-            onError: (e) => print("Error completing: $e"),
-          );
+  @override
+  void initState() {
+    super.initState();
+    getGroups();
+  }
+
+  Future<void> getGroups() async {
+    if (groups.isNotEmpty) {
+      groups.clear();
+    }
+    try {
+      QuerySnapshot<Map<String, dynamic>> groupUserSnapshot =
+          await _queryList.fetchList("groupUserList", "userEmail", FirebaseAuth.instance.currentUser!.email.toString());
+      for (var groupUser in groupUserSnapshot.docs) {
+        QuerySnapshot<Map<String, dynamic>> groupSnapshot =
+        await _queryList.fetchList("groups", "group_ID", groupUser.data()["ID_group"]);
+        for (var group in groupSnapshot.docs) {
+          print(group.data());
+          addGroup(group.data()["groupName"], group.data()["groupDesc"],
+              group.data()["groupPhotoURL"], group.data()["group_ID"]);
         }
-      },
-      onError: (e) => print("Error completing: $e"),
-    );
+      }
+    } catch (e) {}
   }
 
   Future<void> addGroup(String name, String description,
@@ -67,9 +62,6 @@ class _GroupsPageState extends State<Groups> {
 
   @override
   Widget build(BuildContext context) {
-    if (groups.isEmpty) {
-      getGroups();
-    }
     return Scaffold(
       backgroundColor: Colors.black,
       body: Column(
@@ -110,27 +102,30 @@ class _GroupsPageState extends State<Groups> {
           ),
           SizedBox(height: 10),
           Expanded(
-            child: ListView.builder(
-              itemCount: groups.length,
-              itemBuilder: (context, index) {
-                final group = groups[index];
-                return GroupCard(
-                  name: group['name'],
-                  description: group['description'],
-                  backgroundImage: group['backgroundImage'],
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => GroupsPage(
-                          groupName: group['name'],
-                          groupID: group['group_ID'],
-                          backgroundImage: group['backgroundImage'],
+            child: RefreshIndicator(
+              onRefresh: getGroups,
+              child: ListView.builder(
+                itemCount: groups.length,
+                itemBuilder: (context, index) {
+                  final group = groups[index];
+                  return GroupCard(
+                    name: group['name'],
+                    description: group['description'],
+                    backgroundImage: group['backgroundImage'],
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => GroupsPage(
+                            groupName: group['name'],
+                            groupID: group['group_ID'],
+                            backgroundImage: group['backgroundImage'],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ],

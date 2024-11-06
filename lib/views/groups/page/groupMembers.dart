@@ -28,6 +28,9 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
   }
 
   Future<void> getMembers() async {
+    if (members.isNotEmpty) {
+      members.clear();
+    }
     try {
       // Fetch group users based on group ID
       QuerySnapshot<Map<String, dynamic>> groupUsersSnapshot =
@@ -114,19 +117,22 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
           ),
         ),
         Expanded(
-            child: ListView.builder(
-                itemCount: members.length,
-                itemBuilder: (context, index) {
-                  final member = members[index];
-                  print(member);
-                  return GFListTile(
-                    titleText: member['name'],
-                    color: Colors.white,
-                    avatar: GFAvatar(
-                      backgroundImage: NetworkImage(member['photo']!),
-                    ),
-                  );
-                }))
+            child: RefreshIndicator(
+              onRefresh: getMembers,
+              child: ListView.builder(
+                  itemCount: members.length,
+                  itemBuilder: (context, index) {
+                    final member = members[index];
+                    print(member);
+                    return GFListTile(
+                      titleText: member['name'],
+                      color: Colors.white,
+                      avatar: GFAvatar(
+                        backgroundImage: NetworkImage(member['photo']!),
+                      ),
+                    );
+                  }),
+            ))
       ]),
     );
   }
