@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/list_tile/gf_list_tile.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -16,7 +17,11 @@ class _CalendarPageState extends State<CalendarPage> {
   final QueryList _queryList = QueryList();
   FirebaseFirestore db = FirebaseFirestore.instance;
   var currentUser = FirebaseAuth.instance.currentUser?.email;
-  List<Map<String,dynamic>> goals = [];
+  List<Map<String, dynamic>> goals = [];
+  List<Map<String, dynamic>> currentGoals = [];
+  late final ValueNotifier<List<DateTime>> _selectedEvents;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
 
   @override
   void dispose() {
@@ -26,8 +31,10 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   void initState() {
-    getGoals();
     super.initState();
+    getGoals();
+    _selectedDay = _focusedDay;
+    _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
   }
 
   Future<void> getGoals() async {
@@ -44,7 +51,6 @@ class _CalendarPageState extends State<CalendarPage> {
       );
 
       for (var goal in groupUsersSnapshot.docs) {
-        print(goal.data());
         Timestamp dayEndTS = goal.data()["goalDayEnd"];
         DateTime? dayEnd = DateTime.tryParse(dayEndTS.toDate().toString());
         goals.add({
@@ -56,20 +62,19 @@ class _CalendarPageState extends State<CalendarPage> {
     } catch (e) {}
   }
 
-  List<Map<String, dynamic>> getGoalFromDay (DateTime day) {
-    List<Map<String,DateTime>> goalsFromDay = [];
+  List<DateTime> _getEventsForDay(DateTime day) {
+    List<DateTime> goalsFromDay = [];
+    if (currentGoals.isNotEmpty) {
+      currentGoals.clear();
+    }
     for (var goal in goals) {
-      if (goal['dayEnd'].day == day.day) {
-        goalsFromDay.add(goal);
+      if (isSameDay(goal['dayEnd'], day)) {
+        currentGoals.add(goal);
+        goalsFromDay.add(day);
       }
     }
-    print("!/${goalsFromDay.length}");
     return goalsFromDay;
   }
-
-  late final ValueNotifier<List<DateTime>> _selectedEvents;
-  DateTime _focusedDay = DateTime.now();
-  var _selectedDay = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -80,39 +85,52 @@ class _CalendarPageState extends State<CalendarPage> {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                TableCalendar(
+                TableCalendar<DateTime>(
                   focusedDay: _focusedDay,
-                  selectedDayPredicate: (day) {
-                    return (_selectedDay == day);
-                  },
+                  selectedDayPredicate: (day) => (isSameDay(_selectedDay, day)),
                   firstDay: DateTime(1900, 1, 1),
                   lastDay: DateTime(3000, 1, 1),
                   onDaySelected: (selectedDay, focusedDay) {
-                    if (selectedDay != _selectedDay) {
+                    if (!isSameDay(selectedDay, _selectedDay)) {
                       setState(() {
-                        print("Day selected");
                         _focusedDay = focusedDay;
                         _selectedDay = selectedDay;
                       });
+                    _selectedEvents.value = _getEventsForDay(selectedDay);
                     }
                   },
-                  eventLoader: (day) {
-                    List<DateTime> dayGoals = [];
-                    for (var goal in goals) {
-                      print("Goal found: ${goal}");
-                      if (goal['dayEnd'].day == day.day){
-                        dayGoals.add(goal['dayEnd']);
-                      }
-                    }
-                    return dayGoals;
-                  },
+                  eventLoader: _getEventsForDay,
                 ),
-                ListView.builder(itemCount: getGoalFromDay(_selectedDay).length,itemBuilder: (context, index) {
-                  final goal = getGoalFromDay(_selectedDay)[index];
-                  return GFListTile(
-                    title: Text(goal['name']),
-                  );
-                })
+                SizedBox(
+                  height: 10,
+                ),
+                Expanded(
+                  child: ValueListenableBuilder<List<DateTime>>(
+                      valueListenable: _selectedEvents,
+                      builder: (context, value, _) {
+                        return ListView.builder(
+                          itemCount: value.length,
+                          itemBuilder: (context, index) {
+                            final currentGoal = currentGoals[index];
+                            return GFListTile(
+                              color: Colors.lightBlue,
+                              title: Text(currentGoal['name'],
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white
+                              ),),
+                              subTitle: Text(currentGoal['text'],
+                                style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                  color: Colors.white
+                                ),),
+                            );
+                          },
+                        );
+                      }),
+                )
               ],
             ),
           ),
