@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -33,7 +34,19 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           // Add your settings options here
-          const Expanded(child: Text('Settings')),
+          const Expanded(
+              child: Column(
+                children: [
+                  Icon(
+                      Icons.person,
+                      color: Colors.green)
+                ],
+              )),
+
+
+
+
+
         ],
       ),
     );
