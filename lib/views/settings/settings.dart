@@ -39,7 +39,7 @@ class SettingsScreen extends StatelessWidget {
                 children: [
                   Icon(
                       Icons.person,
-                      color: Colors.blue)
+                      color: Colors.green)
                 ],
               )),
 
