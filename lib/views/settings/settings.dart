@@ -38,6 +38,13 @@ class SettingsScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Icon(
+                    Icons.dark_mode,
+                        color: Colors.blue
+
+                  ),
+                  Text('Dark Mode'),
+
+                  Icon(
                       Icons.person,
                       color: Colors.green)
                 ],
