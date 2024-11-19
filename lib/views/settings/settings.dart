@@ -37,16 +37,33 @@ class SettingsScreen extends StatelessWidget {
           const Expanded(
               child: Column(
                 children: [
-                  Icon(
-                    Icons.dark_mode,
-                        color: Colors.blue
-
-                  ),
-                  Text('Dark Mode'),
 
                   Icon(
                       Icons.person,
-                      color: Colors.green)
+                      color: Colors.green
+                  ),
+                  Text('Account settings', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+
+                  Icon(
+                    Icons.dark_mode,
+                        color: Colors.blue,
+
+                  ),
+                  SizedBox(width:10),
+                  Text('Dark Mode'),
+
+                  Icon(
+                      Icons.logout,
+                      color: Colors.red
+                  ),
+                  Text('Logout'),
+
+                  Icon(
+                      Icons.password,
+                      color: Colors.red
+                  ),
+                  Text('Password')
+
                 ],
               )),
 
