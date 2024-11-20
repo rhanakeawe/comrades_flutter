@@ -79,7 +79,8 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      body: RefreshIndicator(
+        onRefresh: getGoals,
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(8.0),

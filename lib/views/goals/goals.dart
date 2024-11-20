@@ -1,9 +1,12 @@
 import 'package:Comrades/querylist.dart';
+import 'package:Comrades/views/groups/page/groupAddGoal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/list_tile/gf_list_tile.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'addGoal.dart';
 
 class GoalsPage extends StatefulWidget {
   const GoalsPage({super.key});
@@ -65,6 +68,23 @@ class _GoalsPageState extends State<GoalsPage> {
         SizedBox(
           height: 16,
         ),
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AddGoal(goals: goals),
+              ),
+            );
+          },
+          child: Text(
+            '+ Add Goal',
+            style: TextStyle(
+              color: Colors.blueAccent,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        SizedBox(height: 10,),
         Expanded(
             child: RefreshIndicator(
               onRefresh: getGoals,
