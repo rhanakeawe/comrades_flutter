@@ -36,7 +36,12 @@ class SettingsScreen extends StatelessWidget {
           // Add your settings options here
           const Expanded(
               child: Column(
-                children: [
+                children: <Widget> [
+                  Card(
+                    child: ListTile(
+                      title: Text("Account Username")
+                    )
+                  ),
 
                   Icon(
                       Icons.person,
@@ -57,6 +62,7 @@ class SettingsScreen extends StatelessWidget {
                       color: Colors.red
                   ),
                   Text('Logout'),
+
 
                   Icon(
                       Icons.password,

@@ -76,20 +76,6 @@ class _MainPageState extends State<MainPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(50.0),
         child: AppBar(
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings, color: Colors.white),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (context) {
-                    return SettingsScreen();
-                  },
-                );
-              },
-            ),
-          ],
           title: Image.asset('assets/Comrades40.png', height: 100),
           centerTitle: true,
           backgroundColor: Colors.red,
