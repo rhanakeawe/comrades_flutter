@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:Comrades/views/auth/loginpage.dart';
@@ -39,10 +40,13 @@ class AccountDrawer extends StatelessWidget {
                 color: Colors.white70,
               ),
             ),
-            currentAccountPicture: CircleAvatar(
-              backgroundImage: userImage.isNotEmpty
-                  ? NetworkImage(userImage)
-                  : const AssetImage('assets/profile_picture.jpg') as ImageProvider,
+            currentAccountPicture: CachedNetworkImage(
+                imageUrl: userImage,
+              imageBuilder: (context, imageProvider) => CircleAvatar(
+                backgroundImage: imageProvider,
+              ),
+              placeholder: (context, url) => CircularProgressIndicator(),
+              errorWidget: (context, url, error) => Icon(Icons.error),
             ),
             decoration: const BoxDecoration(
               color: Colors.red, // Replace with preferred color

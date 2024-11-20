@@ -2,6 +2,7 @@ import 'package:Comrades/views/groups/page/groupAnnouncements.dart';
 import 'package:Comrades/views/groups/page/groupGoals.dart';
 import 'package:Comrades/views/groups/page/groupHome.dart';
 import 'package:Comrades/views/groups/page/groupTodos.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'page/groupMembers.dart';
@@ -9,13 +10,13 @@ import 'page/groupMembers.dart';
 class GroupsPage extends StatelessWidget {
   final String groupName;
   final String groupID;
-  final String? backgroundImage;
+  final String backgroundImage;
 
   const GroupsPage({
     super.key,
     required this.groupName,
     required this.groupID,
-    this.backgroundImage,
+    required this.backgroundImage,
   });
 
   @override
@@ -32,12 +33,10 @@ class GroupsPage extends StatelessWidget {
             height: 200,
             decoration: BoxDecoration(
               color: Colors.grey,
-              image: backgroundImage != null
-                  ? DecorationImage(
-                      image: NetworkImage(backgroundImage!),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
+              image: DecorationImage(
+                image: CachedNetworkImageProvider(backgroundImage),
+                fit: BoxFit.cover,
+              ),
             ),
             alignment: Alignment.center,
             child: Text(
