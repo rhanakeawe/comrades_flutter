@@ -1,22 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class GroupAddGoal extends StatefulWidget {
-  final String groupID;
+import '../../querylist.dart';
+
+class AddGoal extends StatefulWidget {
   final List<Map<String, dynamic>> goals;
 
-  const GroupAddGoal({super.key, required this.groupID, required this.goals});
+  const AddGoal({super.key, required this.goals});
 
   @override
-  State<GroupAddGoal> createState() => _GroupAddGoalState();
+  State<AddGoal> createState() => _AddGoalState();
 }
 
-class _GroupAddGoalState extends State<GroupAddGoal> {
+class _AddGoalState extends State<AddGoal> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   var currentUser = FirebaseAuth.instance.currentUser?.email;
   List<String> goalNames = [];
+  List<Map<String,String>> groups = [];
+  List<String> groupNames = [];
+  final QueryList _queryList = QueryList();
 
   @override
   void dispose() {
@@ -28,7 +33,40 @@ class _GroupAddGoalState extends State<GroupAddGoal> {
   @override
   void initState() {
     super.initState();
+    getGroups();
     findGoals();
+    try {
+      dropDownValue = groupNames.first;
+    }
+    catch (e) {}
+  }
+
+  Future<void> getGroups() async {
+    if (groupNames.isNotEmpty) {
+      groupNames.clear();
+    }
+    try {
+      QuerySnapshot<Map<String, dynamic>> groupUserSnapshot =
+      await _queryList.fetchList("groupUserList", "userEmail", FirebaseAuth.instance.currentUser!.email.toString());
+      for (var groupUser in groupUserSnapshot.docs) {
+        QuerySnapshot<Map<String, dynamic>> groupSnapshot =
+        await _queryList.fetchList("groups", "group_ID", groupUser.data()["ID_group"]);
+        for (var group in groupSnapshot.docs) {
+          print(group.data());
+          addGroup(group.data()["groupName"], group.data()["group_ID"]);
+        }
+      }
+    } catch (e) {}
+  }
+
+  Future<void> addGroup(String name, String groupId) async {
+    setState(() {
+      groups.add({
+        'name': name,
+        'group_ID': groupId,
+      });
+      groupNames.add(name);
+    });
   }
 
   Future<void> findGoals() async {
@@ -40,9 +78,9 @@ class _GroupAddGoalState extends State<GroupAddGoal> {
     }
   }
 
-  void addGoal(String name, String desc, DateTime dayStart, DateTime dayEnd) {
+  void addGoal(String groupID, String name, String desc, DateTime dayStart, DateTime dayEnd) {
     final inputGoal = <String, dynamic>{
-      'ID_group': widget.groupID,
+      'ID_group': groupID,
       'goalDayStart': dayStart,
       'goalDayEnd': dayEnd,
       'goalName': name,
@@ -54,6 +92,7 @@ class _GroupAddGoalState extends State<GroupAddGoal> {
     Navigator.pop(context);
   }
 
+  String? dropDownValue;
   final nameController = TextEditingController();
   final descController = TextEditingController();
   CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -77,6 +116,22 @@ class _GroupAddGoalState extends State<GroupAddGoal> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("Group"),
+            ),
+            DropdownButton(
+              value: dropDownValue,
+              items: groupNames.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value, child: Text(value)
+                );
+              }).toList(),
+              onChanged: (String? value) {
+                setState(() {
+                  dropDownValue = value!;
+                });
+              }),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text("Name"),
@@ -135,7 +190,18 @@ class _GroupAddGoalState extends State<GroupAddGoal> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          addGoal(nameController.text, descController.text, _rangeStart!, _rangeEnd!);
+          if (dropDownValue == null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Missing Group!")));
+          }
+          else if (_rangeStart == null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Missing Start Day!")));
+          }
+          else if (_rangeEnd == null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Missing Start End!")));
+          }
+          else {
+            addGoal(dropDownValue!,nameController.text, descController.text, _rangeStart!, _rangeEnd!);
+          }
         },
         child: Text("Enter"),
       ),
