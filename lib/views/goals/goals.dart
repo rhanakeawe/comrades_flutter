@@ -1,5 +1,4 @@
 import 'package:Comrades/querylist.dart';
-import 'package:Comrades/views/groups/page/groupAddGoal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +40,7 @@ class _GoalsPageState extends State<GoalsPage> {
       );
 
       for (var goal in groupUsersSnapshot.docs) {
-        print(goal.data());
+        //print(goal.data());
         Timestamp dayStartTS = goal.data()["goalDayStart"];
         Timestamp dayEndTS = goal.data()["goalDayEnd"];
         DateTime? dayStart = DateTime.tryParse(dayStartTS.toDate().toString());

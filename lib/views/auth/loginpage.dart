@@ -1,6 +1,13 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:Comrades/data/userData.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
+
+import '../../data/appCacheManager.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -12,6 +19,14 @@ class LoginPage extends StatelessWidget {
   // sign user in method
   void signUserIn() {}
 
+  Future<void> saveDataToCache(String filename, String jsonData) async {
+    final cacheManager = AppCacheManager();
+    await cacheManager.putFile(
+      filename,
+      Uint8List.fromList(jsonData.codeUnits),
+    );
+  }
+
   // sign in with Google
   Future<void> signInWithGoogle() async {
     try {
@@ -20,7 +35,7 @@ class LoginPage extends StatelessWidget {
 
       // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth =
-      await googleUser!.authentication;
+          await googleUser!.authentication;
 
       // Create a new credential
       final credential = GoogleAuthProvider.credential(
@@ -28,8 +43,28 @@ class LoginPage extends StatelessWidget {
         idToken: googleAuth.idToken,
       );
 
+
+
       // Once signed in, return the UserCredential
       await FirebaseAuth.instance.signInWithCredential(credential);
+
+      FirebaseFirestore db = FirebaseFirestore.instance;
+
+      final user = UserData(
+          userName: googleUser.displayName!,
+          email: googleUser.email,
+          profilePic: googleUser.photoUrl!
+      );
+
+      await db.collection('users').doc(user.email).set({
+        "email" : user.email,
+        "name" : user.userName,
+        "profilepic" : user.profilePic
+      });
+
+      final userJson = user.toJson();
+      await saveDataToCache('user_data.json', jsonEncode(userJson));
+
     } catch (e) {
       print('Error signing in with Google: $e');
     }
@@ -62,7 +97,8 @@ class LoginPage extends StatelessWidget {
                 Text(
                   'Comrade, you\'ve been missed!',
                   style: TextStyle(
-                    color: Colors.grey[300], // Light grey text color for dark background
+                    color: Colors
+                        .grey[300], // Light grey text color for dark background
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -79,14 +115,16 @@ class LoginPage extends StatelessWidget {
                       hintText: 'Email', // Change to "Email" to match reference
                       hintStyle: TextStyle(color: Colors.grey[500]),
                       filled: true,
-                      fillColor: Colors.grey[800], // Dark fill color for text field
+                      fillColor:
+                          Colors.grey[800], // Dark fill color for text field
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide.none,
                       ),
                     ),
                     obscureText: false,
-                    style: TextStyle(color: Colors.white), // Text color inside input
+                    style: TextStyle(
+                        color: Colors.white), // Text color inside input
                   ),
                 ),
 
@@ -122,7 +160,9 @@ class LoginPage extends StatelessWidget {
                     children: [
                       Text(
                         'Forgot Password?',
-                        style: TextStyle(color: Colors.grey[500]), // Light grey for visibility
+                        style: TextStyle(
+                            color:
+                                Colors.grey[500]), // Light grey for visibility
                       ),
                     ],
                   ),
@@ -165,7 +205,8 @@ class LoginPage extends StatelessWidget {
                       Expanded(
                         child: Divider(
                           thickness: 0.5,
-                          color: Colors.grey[700], // Light divider for visibility
+                          color:
+                              Colors.grey[700], // Light divider for visibility
                         ),
                       ),
                       Padding(
@@ -199,7 +240,8 @@ class LoginPage extends StatelessWidget {
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey[700]!),
                           borderRadius: BorderRadius.circular(10),
-                          color: Colors.grey[800], // Dark background for buttons
+                          color:
+                              Colors.grey[800], // Dark background for buttons
                         ),
                         child: Image.asset(
                           'assets/googleLogo.png',

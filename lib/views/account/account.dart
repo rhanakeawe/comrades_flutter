@@ -1,9 +1,10 @@
+import 'package:Comrades/data/manageCache.dart';
+import 'package:Comrades/main.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:Comrades/views/auth/loginpage.dart';
 
-class AccountDrawer extends StatelessWidget {
+class AccountDrawer extends StatefulWidget {
   final String userName;
   final String userEmail;
   final String userImage;
@@ -20,6 +21,19 @@ class AccountDrawer extends StatelessWidget {
   });
 
   @override
+  State<AccountDrawer> createState() => _AccountDrawerState();
+}
+
+class _AccountDrawerState extends State<AccountDrawer> {
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final manageCache = ManageCache();
+  signOut() async {
+    await auth.signOut();
+    await manageCache.clearAllCache();
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MyApp()));
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -27,7 +41,7 @@ class AccountDrawer extends StatelessWidget {
         children: [
           UserAccountsDrawerHeader(
             accountName: Text(
-              userName,
+              widget.userName,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -35,13 +49,13 @@ class AccountDrawer extends StatelessWidget {
               ),
             ),
             accountEmail: Text(
-              userEmail,
+              widget.userEmail,
               style: const TextStyle(
                 color: Colors.white70,
               ),
             ),
             currentAccountPicture: CachedNetworkImage(
-                imageUrl: userImage,
+              imageUrl: widget.userImage,
               imageBuilder: (context, imageProvider) => CircleAvatar(
                 backgroundImage: imageProvider,
               ),
@@ -53,51 +67,45 @@ class AccountDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            selected: selectedIndex == 5,
+            selected: widget.selectedIndex == 5,
             leading: const Icon(Icons.assist_walker),
             title: const Text('Non-negotiables'),
             onTap: () {
-              onItemTapped(5); // Navigate to Non-negotiables
+              widget.onItemTapped(5); // Navigate to Non-negotiables
               Navigator.pop(context);
             },
           ),
           ListTile(
-            selected: selectedIndex == 6,
+            selected: widget.selectedIndex == 6,
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
             onTap: () {
-              onItemTapped(6); // Navigate to Settings
+              widget.onItemTapped(6); // Navigate to Settings
               Navigator.pop(context);
             },
           ),
           ListTile(
-            selected: selectedIndex == 7,
+            selected: widget.selectedIndex == 7,
             leading: const Icon(Icons.help),
             title: const Text('Help'),
             onTap: () {
-              onItemTapped(7); // Navigate to Help
+              widget.onItemTapped(7); // Navigate to Help
               Navigator.pop(context);
             },
           ),
           ListTile(
-            selected: selectedIndex == 8,
+            selected: widget.selectedIndex == 8,
             leading: const Icon(Icons.pregnant_woman),
             title: const Text('Get Pregnant'),
             onTap: () {
-              onItemTapped(8); // Navigate to Pregnant
+              widget.onItemTapped(8); // Navigate to Pregnant
               Navigator.pop(context);
             },
           ),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Log Out'),
-            onTap: () {
-              FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
-              );
-            },
+            onTap: signOut,
           ),
         ],
       ),

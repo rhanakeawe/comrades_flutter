@@ -1,8 +1,13 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:Comrades/data/manageCache.dart';
+import 'package:Comrades/data/userData.dart';
+import 'package:Comrades/main.dart';
 import 'package:Comrades/views/account/account_settings.dart';
 import 'package:Comrades/views/goals/goals.dart';
 import 'package:Comrades/views/inbox/inbox.dart';
 import 'package:Comrades/views/notifications/notifications.dart';
-import 'package:Comrades/views/settings/settings.dart';
 import 'package:Comrades/views/account/help.dart';
 import 'package:Comrades/views/account/non-negotiables.dart';
 import 'package:Comrades/views/account/pregnant.dart';
@@ -11,7 +16,6 @@ import 'package:Comrades/views/account/account.dart';
 import 'package:Comrades/views/groups/groups.dart';
 import 'package:Comrades/views/calendar/calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -26,6 +30,7 @@ class _MainPageState extends State<MainPage> {
   String userName = "";
   String userEmail = "";
   String userImage = "";
+  UserData? user;
 
   List<Widget> widgetList = [
     Groups(), // index 0 -> Groups Page
@@ -39,24 +44,27 @@ class _MainPageState extends State<MainPage> {
     Pregnant(),
   ];
 
-  void getUserData() {
-    db
-        .collection("users")
-        .where("email", isEqualTo: FirebaseAuth.instance.currentUser?.email)
-        .get()
-        .then(
-      (users) {
-        print("Successfully queried user!");
-        for (var user in users.docs) {
-          setState(() {
-            userName = user.data()["name"];
-            userEmail = user.data()["email"];
-            userImage = user.data()["profilepic"];
-          });
-        }
-      },
-      onError: (e) => print("Error completing: $e"),
-    );
+  Future<void> getUserData() async {
+    final loadCache = ManageCache();
+    final cachedUserData = await loadCache.loadDataFromCache('user_data.json');
+    Future.delayed(Duration(seconds: 1), () {
+      if (cachedUserData != null) {
+        user = UserData.fromJson(jsonDecode(cachedUserData));
+        print('User loaded: ${user!.userName}');
+        setState(() {
+          userName = user!.userName;
+          userEmail = user!.email;
+          userImage = user!.profilePic;
+        });
+      } else {
+        print('No cache found');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MyApp()));
+        });
+      }
+    });
   }
 
   void _onItemTapped(int index) {
@@ -69,7 +77,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (userName.isEmpty) {
+    if (user == null) {
       getUserData();
     }
     return Scaffold(
