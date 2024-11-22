@@ -1,3 +1,4 @@
+import 'package:Comrades/data/manageCache.dart';
 import 'package:Comrades/querylist.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:getwidget/components/list_tile/gf_list_tile.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../data/goalData.dart';
 import 'addGoal.dart';
 
 class GoalsPage extends StatefulWidget {
@@ -18,7 +20,7 @@ class _GoalsPageState extends State<GoalsPage> {
   final QueryList _queryList = QueryList();
   FirebaseFirestore db = FirebaseFirestore.instance;
   var currentUser = FirebaseAuth.instance.currentUser?.email;
-  List<Map<String, dynamic>> goals = [];
+  List<Map<String, dynamic>> goalsList = [];
 
   @override
   void initState() {
@@ -26,37 +28,81 @@ class _GoalsPageState extends State<GoalsPage> {
     getGoals();
   }
 
-  Future<void> getGoals() async {
-    if (goals.isNotEmpty) {
-      goals.clear();
-    }
-    try {
-      // Fetch group users based on group ID
-      QuerySnapshot<Map<String, dynamic>> groupUsersSnapshot =
-          await _queryList.fetchList(
-        "goals",
-        "userEmail",
-        currentUser!,
-      );
+  Future<void> refreshGoals() async {
+    print("refresh goals");
+    final manageCache = ManageCache();
+    await manageCache.deleteCache('goals_data.json');
+    goalsList.clear();
+    getGoals();
+  }
 
-      for (var goal in groupUsersSnapshot.docs) {
-        //print(goal.data());
-        Timestamp dayStartTS = goal.data()["goalDayStart"];
-        Timestamp dayEndTS = goal.data()["goalDayEnd"];
-        DateTime? dayStart = DateTime.tryParse(dayStartTS.toDate().toString());
-        DateTime? dayEnd = DateTime.tryParse(dayEndTS.toDate().toString());
-        var dayCount = dayEnd!.difference(DateTime.now()).inDays;
-        setState(() {
-          goals.add({
-            'dayCount': dayCount.toString(),
-            'dayStart': "${dayStart!.month}/${dayStart.day}/${dayStart.year}",
-            'name': goal.data()["goalName"],
-            'text': goal.data()["goalText"],
-            'email': goal.data()["userEmail"],
+  Future<void> getGoals() async {
+    print("get goals");
+    final manageCache = ManageCache();
+    var loadedGoals = await manageCache.loadListFromCache('goals_data.json');
+
+    if (loadedGoals == null) {
+      List<GoalData> goals = [];
+      try {
+        // Fetch group users based on group ID
+        QuerySnapshot<Map<String, dynamic>> goalUsersSnapshot =
+        await _queryList.fetchList(
+          "goals",
+          "userEmail",
+          currentUser!,
+        );
+        for (var goal in goalUsersSnapshot.docs) {
+          DateTime? dayStart = DateTime.tryParse(goal.data()["goalDayStart"].toDate().toString());
+          DateTime? dayEnd = DateTime.tryParse(goal.data()["goalDayEnd"].toDate().toString());
+          print("dayStart: ${dayStart}");
+          setState(() {
+            goals.add(GoalData(
+                goalName: goal.data()["goalName"],
+                goalText: goal.data()["goalText"],
+                userEmail: goal.data()["userEmail"],
+                goalDayStart: dayStart.toString(),
+                goalDayEnd: dayEnd.toString(),
+                ID_group: goal.data()["ID_group"]));
           });
+        }
+        await manageCache.saveListToCache('goals_data.json', goals);
+        for (var goal in goals) {
+          DateTime? dayStart = DateTime.tryParse(goal.goalDayStart);
+          DateTime? dayEnd = DateTime.tryParse(goal.goalDayEnd);
+          final dayCount = dayEnd!.difference(DateTime.now()).inDays;
+          setState(() {
+            goalsList.add({
+              "name": goal.goalName,
+              "email": goal.userEmail,
+              "text": goal.goalText,
+              "dayStart": "${dayStart!.month}/${dayStart.day}/${dayStart.year}",
+              "dayCount": dayCount.toString(),
+            });
+          });
+          print(goalsList.length);
+        }
+      } catch (e) {
+        print(e);
+      }
+    } else {
+      print("loaded goals");
+      loadedGoals = loadedGoals as List<GoalData>;
+      for (var goal in loadedGoals) {
+        DateTime? dayStart = DateTime.tryParse(goal.goalDayStart);
+        DateTime? dayEnd = DateTime.tryParse(goal.goalDayEnd);
+        final dayCount = dayEnd!.difference(DateTime.now()).inDays;
+        setState(() {
+          goalsList.add({
+            "name": goal.goalName,
+            "email": goal.userEmail,
+            "text": goal.goalText,
+            "dayStart": "${dayStart!.month}/${dayStart.day}/${dayStart.year}",
+            "dayCount": dayCount.toString(),
+          });
+          print(goalsList);
         });
       }
-    } catch (e) {}
+    }
   }
 
   @override
@@ -71,7 +117,7 @@ class _GoalsPageState extends State<GoalsPage> {
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => AddGoal(goals: goals),
+                builder: (context) => AddGoal(goals: goalsList),
               ),
             );
           },
@@ -86,11 +132,11 @@ class _GoalsPageState extends State<GoalsPage> {
         SizedBox(height: 10,),
         Expanded(
             child: RefreshIndicator(
-              onRefresh: getGoals,
+              onRefresh: refreshGoals,
               child: ListView.builder(
-                  itemCount: goals.length,
+                  itemCount: goalsList.length,
                   itemBuilder: (context, index) {
-                    final goal = goals[index];
+                    final goal = goalsList[index];
                     return GFListTile(
                       title: Center(
                         child: Column(

@@ -94,15 +94,6 @@ class _AccountDrawerState extends State<AccountDrawer> {
             },
           ),
           ListTile(
-            selected: widget.selectedIndex == 8,
-            leading: const Icon(Icons.pregnant_woman),
-            title: const Text('Get Pregnant'),
-            onTap: () {
-              widget.onItemTapped(8); // Navigate to Pregnant
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Log Out'),
             onTap: signOut,

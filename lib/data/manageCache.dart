@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:Comrades/data/goalData.dart';
+
 import 'appCacheManager.dart';
 import 'groupData.dart';
 final cacheManager = AppCacheManager();
@@ -15,12 +17,18 @@ class ManageCache {
     return null;
   }
 
-  Future<void> saveGroupsToCache(String filename, List<GroupData> groups) async {
-    final List<Map<String, dynamic>> groupsJson =
-    groups.map((group) => group.toJson()).toList();
-    print("length: ${groups.length}");
+  Future<void> saveListToCache(String filename, List<Object> list) async {
+    List<Map<String, dynamic>> listJson = [];
+    if (filename == 'groups_data.json') {
+      list = list as List<GroupData>;
+      listJson = list.map((item) => item.toJson()).toList();
+    } else if (filename == 'goals_data.json') {
+      list = list as List<GoalData>;
+      listJson = list.map((item) => item.toJson()).toList();
+    }
+    print("length: ${list.length}");
 
-    final jsonString = jsonEncode(groupsJson);
+    final jsonString = jsonEncode(listJson);
 
     await cacheManager.putFile(
       filename,
@@ -28,12 +36,16 @@ class ManageCache {
     );
   }
 
-  Future<List<GroupData>?> loadGroupsFromCache(String filename) async {
+  Future<List<Object>?> loadListFromCache(String filename) async {
     final fileInfo = await cacheManager.getFileFromCache(filename);
     if (fileInfo != null) {
       final jsonString = String.fromCharCodes(await fileInfo.file.readAsBytes());
       final List<dynamic> jsonData = jsonDecode(jsonString);
-      return jsonData.map((json) => GroupData.fromJson(json)).toList();
+      if (filename == 'groups_data.json') {
+        return jsonData.map((json) => GroupData.fromJson(json)).toList();
+      } else if (filename == 'goals_data.json') {
+        return jsonData.map((json) => GoalData.fromJson(json)).toList();
+      }
     }
     return null;
   }

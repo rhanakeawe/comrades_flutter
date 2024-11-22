@@ -10,7 +10,6 @@ import 'package:Comrades/views/inbox/inbox.dart';
 import 'package:Comrades/views/notifications/notifications.dart';
 import 'package:Comrades/views/account/help.dart';
 import 'package:Comrades/views/account/non-negotiables.dart';
-import 'package:Comrades/views/account/pregnant.dart';
 import 'package:flutter/material.dart';
 import 'package:Comrades/views/account/account.dart';
 import 'package:Comrades/views/groups/groups.dart';
@@ -41,45 +40,42 @@ class _MainPageState extends State<MainPage> {
     Non_negotiables(),
     Account_Settings(),
     Help(),
-    Pregnant(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    getUserData();
+  }
 
   Future<void> getUserData() async {
     final loadCache = ManageCache();
     final cachedUserData = await loadCache.loadDataFromCache('user_data.json');
-    Future.delayed(Duration(seconds: 1), () {
-      if (cachedUserData != null) {
-        user = UserData.fromJson(jsonDecode(cachedUserData));
-        print('User loaded: ${user!.userName}');
-        setState(() {
-          userName = user!.userName;
-          userEmail = user!.email;
-          userImage = user!.profilePic;
-        });
-      } else {
-        print('No cache found');
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => MyApp()));
-        });
-      }
-    });
+    if (cachedUserData != null) {
+      final user = UserData.fromJson(jsonDecode(cachedUserData));
+      print('User loaded: ${user.userName}');
+      setState(() {
+        userName = user.userName;
+        userEmail = user.email;
+        userImage = user.profilePic;
+      });
+    } else {
+      print('No user cache found');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => MyApp()));
+      });
+    }
   }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-    String string = "$index / ${widgetList.length}";
-    print(string);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (user == null) {
-      getUserData();
-    }
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(50.0),
@@ -118,9 +114,6 @@ class _MainPageState extends State<MainPage> {
         type: BottomNavigationBarType.fixed,
         onTap: _onItemTapped,
         currentIndex: _selectedIndex <= 4 ? _selectedIndex : 0,
-        //userImage.isNotEmpty
-        //                   ? NetworkImage(userImage)
-        //                   : const AssetImage('assets/profile_picture.jpg') as ImageProvider
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_rounded),

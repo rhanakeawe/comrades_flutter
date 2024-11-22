@@ -1,4 +1,3 @@
-
 import 'package:Comrades/data/groupData.dart';
 import 'package:Comrades/data/manageCache.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,27 +27,6 @@ class _GroupsPageState extends State<Groups> {
     getGroups();
   }
 
-  /*Future<GroupData> addGroup(
-      String name,
-      String description,
-      String? backgroundImage,
-      String groupId,
-      String creator,
-      int color) async {
-    final gsReference = FirebaseStorage.instance.refFromURL(backgroundImage!);
-    String url = await gsReference.getDownloadURL();
-
-    final group = GroupData(
-        groupName: name,
-        group_ID: groupId,
-        groupCreator: creator,
-        groupDesc: description,
-        groupPhotoURL: url,
-        groupColor: color.toString());
-
-    return group;
-  }*/
-
   Future<void> refreshGroups() async {
     final manageCache = ManageCache();
     await manageCache.deleteCache('groups_data.json');
@@ -58,12 +36,11 @@ class _GroupsPageState extends State<Groups> {
 
   Future<void> getGroups() async {
     final manageCache = ManageCache();
-    final loadedGroups =
-        await manageCache.loadGroupsFromCache('groups_data.json');
+    var loadedGroups =
+        await manageCache.loadListFromCache('groups_data.json');
 
     if (loadedGroups == null) {
       List<GroupData> groups = [];
-      print("load groups null");
       try {
         QuerySnapshot<Map<String, dynamic>> groupUserSnapshot =
             await _queryList.fetchList("groupUserList", "userEmail",
@@ -73,7 +50,8 @@ class _GroupsPageState extends State<Groups> {
               .fetchList("groups", "group_ID", groupUser.data()["ID_group"]);
           for (var group in groupSnapshot.docs) {
             print(group.data());
-            final gsReference = FirebaseStorage.instance.refFromURL(group.data()["groupPhotoURL"]!);
+            final gsReference = FirebaseStorage.instance
+                .refFromURL(group.data()["groupPhotoURL"]!);
             String url = await gsReference.getDownloadURL();
             setState(() {
               groups.add(GroupData(
@@ -86,7 +64,7 @@ class _GroupsPageState extends State<Groups> {
             });
           }
         }
-        await manageCache.saveGroupsToCache('groups_data.json', groups);
+        await manageCache.saveListToCache('groups_data.json', groups);
         for (var group in groups) {
           setState(() {
             groupsList.add({
@@ -97,8 +75,11 @@ class _GroupsPageState extends State<Groups> {
             });
           });
         }
-      } catch (e) {print(e);}
+      } catch (e) {
+        print(e);
+      }
     } else {
+      loadedGroups = loadedGroups as List<GroupData>;
       for (var group in loadedGroups) {
         setState(() {
           groupsList.add({
