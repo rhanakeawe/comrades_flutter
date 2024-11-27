@@ -54,7 +54,7 @@ class _GoalsPageState extends State<GoalsPage> {
         for (var goal in goalUsersSnapshot.docs) {
           DateTime? dayStart = DateTime.tryParse(goal.data()["goalDayStart"].toDate().toString());
           DateTime? dayEnd = DateTime.tryParse(goal.data()["goalDayEnd"].toDate().toString());
-          print("dayStart: ${dayStart}");
+          print("dayStart: $dayStart");
           setState(() {
             goals.add(GoalData(
                 goalName: goal.data()["goalName"],

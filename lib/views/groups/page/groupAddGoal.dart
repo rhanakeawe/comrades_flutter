@@ -56,7 +56,7 @@ class _GroupAddGoalState extends State<GroupAddGoal> {
 
   final nameController = TextEditingController();
   final descController = TextEditingController();
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOn;
   DateTime _focusedDate = DateTime.now();
   DateTime? _selectedDay;
