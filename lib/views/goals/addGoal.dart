@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -95,7 +94,7 @@ class _AddGoalState extends State<AddGoal> {
   String? dropDownValue;
   final nameController = TextEditingController();
   final descController = TextEditingController();
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOn;
   DateTime _focusedDate = DateTime.now();
   DateTime? _selectedDay;

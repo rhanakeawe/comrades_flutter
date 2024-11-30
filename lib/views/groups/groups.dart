@@ -8,6 +8,8 @@ import 'package:Comrades/views/groups/create_group_screen.dart';
 import '../../querylist.dart';
 import 'groupcard.dart';
 import 'groupspage.dart';
+import '../../notification/notification.dart';
+
 
 class Groups extends StatefulWidget {
   const Groups({super.key});
@@ -32,6 +34,7 @@ class _GroupsPageState extends State<Groups> {
     await manageCache.deleteCache('groups_data.json');
     groupsList.clear();
     getGroups();
+    NotificationService.showInstantNotification("Refreshed Groups", "Groups list has been refreshed!");
   }
 
   Future<void> getGroups() async {

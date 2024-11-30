@@ -46,15 +46,17 @@ class _GoalsPageState extends State<GoalsPage> {
       try {
         // Fetch group users based on group ID
         QuerySnapshot<Map<String, dynamic>> goalUsersSnapshot =
-        await _queryList.fetchList(
+            await _queryList.fetchList(
           "goals",
           "userEmail",
           currentUser!,
         );
         for (var goal in goalUsersSnapshot.docs) {
-          DateTime? dayStart = DateTime.tryParse(goal.data()["goalDayStart"].toDate().toString());
-          DateTime? dayEnd = DateTime.tryParse(goal.data()["goalDayEnd"].toDate().toString());
-          print("dayStart: ${dayStart}");
+          DateTime? dayStart = DateTime.tryParse(
+              goal.data()["goalDayStart"].toDate().toString());
+          DateTime? dayEnd =
+              DateTime.tryParse(goal.data()["goalDayEnd"].toDate().toString());
+          print("dayStart: $dayStart");
           setState(() {
             goals.add(GoalData(
                 goalName: goal.data()["goalName"],
@@ -129,79 +131,81 @@ class _GoalsPageState extends State<GoalsPage> {
             ),
           ),
         ),
-        SizedBox(height: 10,),
+        SizedBox(
+          height: 10,
+        ),
         Expanded(
             child: RefreshIndicator(
-              onRefresh: refreshGoals,
-              child: ListView.builder(
-                  itemCount: goalsList.length,
-                  itemBuilder: (context, index) {
-                    final goal = goalsList[index];
-                    return GFListTile(
-                      title: Center(
-                        child: Column(
+          onRefresh: refreshGoals,
+          child: ListView.builder(
+              itemCount: goalsList.length,
+              itemBuilder: (context, index) {
+                final goal = goalsList[index];
+                return GFListTile(
+                  title: Center(
+                    child: Column(
+                      children: [
+                        Text(goal['name'],
+                            style: GoogleFonts.poppins(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white)),
+                        Text(goal['email'],
+                            style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.white)),
+                        Text(goal['text'],
+                            style: GoogleFonts.poppins(
+                                fontSize: 15, color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                  description: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(goal['name'],
-                                style: GoogleFonts.poppins(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white)),
-                            Text(goal['email'],
-                                style: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    fontStyle: FontStyle.italic,
-                                    color: Colors.white)),
-                            Text(goal['text'],
-                                style: GoogleFonts.poppins(
-                                    fontSize: 15, color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                      description: Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Column(
                               children: [
-                                Column(
-                                  children: [
-                                    Text(goal['dayCount'],
-                                        style: GoogleFonts.poppins(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white)),
-                                    Text("Days left",
-                                        style: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white)),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(goal['dayStart'],
-                                        style: GoogleFonts.poppins(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white)),
-                                    Text("Started",
-                                        style: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white)),
-                                  ],
-                                ),
+                                Text(goal['dayCount'],
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white)),
+                                Text("Days left",
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white)),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(goal['dayStart'],
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white)),
+                                Text("Started",
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white)),
                               ],
                             ),
                           ],
                         ),
-                      ),
-                      color: Colors.lightBlue,
-                    );
-                  }),
-            ))
+                      ],
+                    ),
+                  ),
+                  color: Colors.lightBlue,
+                );
+              }),
+        ))
       ],
     ));
   }

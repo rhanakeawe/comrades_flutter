@@ -1,12 +1,16 @@
+import 'package:Comrades/notification/notification.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:Comrades/views/home/home.dart';
 import 'package:Comrades/views/auth/loginpage.dart'; // Import the LoginPage
 import 'package:Comrades/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.init();
+  tz.initializeTimeZones();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
