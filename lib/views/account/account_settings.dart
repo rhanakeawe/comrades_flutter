@@ -72,31 +72,57 @@ class _Account_SettingsState extends State<Account_Settings> {
                       ),
                       ListTile(
                         leading:Icon(Icons.location_on, color: Colors.purple),
-                        title: Text("Change Location"),
+                        title: Text("Change Language"),
                         trailing: Icon(Icons.keyboard_arrow_right),
                         onTap: () {
                           //change password
                         },
 
                       ),
+                      ListTile(
+                        leading:Icon(Icons.location_on, color: Colors.purple),
+                        title: Text("Change Location"),
+                        trailing: Icon(Icons.keyboard_arrow_right),
+                        onTap: () {
+                        //change location
+                      },
+                        ),
+                      const SizedBox(height: 10.0),
+                      Text("Notification Settings", style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.indigo
+                      ),),
+                     SwitchListTile(
+                    activeColor: Colors.purple,
+                    contentPadding: const EdgeInsets.all(0),
+                    value: true,
+                    title: Text("Received notifications"),
+                    onChanged: (val){},
+                  ),
 
-
-
-
-
-
-                      Icon(
-                          Icons.logout,
-                          color: Colors.red
+                      SwitchListTile(
+                        activeColor: Colors.purple,
+                        contentPadding: const EdgeInsets.all(0),
+                        value: true,
+                        title: Text("Received newsletter"),
+                        onChanged: null,
                       ),
-                      Text('Logout'),
 
-
-                      Icon(
-                          Icons.password,
-                          color: Colors.red
+                      SwitchListTile(
+                        activeColor: Colors.purple,
+                        contentPadding: const EdgeInsets.all(0),
+                        value: false,
+                        title: Text("Received offer notifications"),
+                        onChanged: (val){},
                       ),
-                      Text('Password')
+
+
+
+
+
+
+
 
                     ],
                   ),
