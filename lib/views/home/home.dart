@@ -16,6 +16,7 @@ import 'package:Comrades/views/groups/groups.dart';
 import 'package:Comrades/views/calendar/calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
@@ -37,7 +38,7 @@ class _MainPageState extends State<MainPage> {
     GoalsPage(), // index 2 -> Groups Page
     NotificationsPage(), // index 3 -> Notifications Page
     InboxPage(), // index 4 -> Inbox Page
-    Non_negotiables(),
+    NonNegotiablesPage(),
     Account_Settings(),
     Help(),
   ];
