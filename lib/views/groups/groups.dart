@@ -79,7 +79,7 @@ class _GroupsPageState extends State<Groups> {
           });
         }
       } catch (e) {
-        print(e);
+        print("Error getting groups: $e");
       }
     } else {
       loadedGroups = loadedGroups as List<GroupData>;

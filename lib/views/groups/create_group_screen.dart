@@ -1,4 +1,10 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({super.key});
@@ -8,24 +14,72 @@ class CreateGroupScreen extends StatefulWidget {
 }
 
 class _CreateGroupScreenState extends State<CreateGroupScreen> {
-  final TextEditingController _groupNameController = TextEditingController();
-  final TextEditingController _groupDescriptionController = TextEditingController();
-  String? backgroundImage;
+  final TextEditingController groupNameController = TextEditingController();
+  final TextEditingController groupDescriptionController =
+      TextEditingController();
+  final TextEditingController groupIDController = TextEditingController();
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  var currentUser = FirebaseAuth.instance.currentUser?.email;
+  File? imageFile;
 
-  void createGroup() {
-    final name = _groupNameController.text;
-    final description = _groupDescriptionController.text;
-
-    if (name.isNotEmpty && description.isNotEmpty) {
-      Navigator.pop(context, {
-        'name': name,
-        'description': description,
-        'backgroundImage': backgroundImage,
+  Future<void> pickImage() async {
+    final pickedImage =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      setState(() {
+        imageFile = File(pickedImage.path);
       });
+    }
+  }
+
+  Future<String?> _uploadImage(File imageFile) async {
+    try {
+      String fileName =
+          'group_background/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      Reference storageRef = FirebaseStorage.instance.ref(fileName);
+      await storageRef.putFile(imageFile);
+      String bucket = FirebaseStorage.instance.bucket;
+      return '$bucket/$fileName';
+    } catch (e) {
+      print('Error uploading image: $e');
+      return null;
+    }
+  }
+
+  Future<void> createGroup() async {
+    if (groupNameController.text.isEmpty ||
+        groupDescriptionController.text.isEmpty ||
+        groupIDController.text.isEmpty ||
+        imageFile == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Please fill all fields.')));
+      return;
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter both a name and description')),
-      );
+      try {
+        String? imageURL = await _uploadImage(imageFile!);
+        if (imageURL != null) {
+          final inputGroup = <String, dynamic>{
+            'groupColor': 1,
+            'groupCreator': currentUser!,
+            'groupDesc': groupDescriptionController.text,
+            'groupName': groupNameController.text,
+            'groupPhotoURL': 'gs://$imageURL',
+            'group_ID': "@${groupIDController.text}"
+          };
+          final userGroup = <String, dynamic> {
+            'ID_group': "@${groupIDController.text}",
+            'userEmail': currentUser!
+          };
+          await db.collection("groups").add(inputGroup).then((documentSnapshot) =>
+              print("Added data with ID: ${documentSnapshot.id}"));
+          await db.collection("groupUserList").add(userGroup).then((documentSnapshot) =>
+              print("Added data with ID: ${documentSnapshot.id}"));
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        print('Error uploading group: $e');
+        return;
+      }
     }
   }
 
@@ -41,7 +95,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-              controller: _groupNameController,
+              controller: groupNameController,
               decoration: InputDecoration(
                 labelText: 'Group Name',
                 border: OutlineInputBorder(),
@@ -49,20 +103,26 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: _groupDescriptionController,
+              controller: groupDescriptionController,
               decoration: InputDecoration(
                 labelText: 'Group Description',
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
+            TextField(
+              controller: groupIDController,
+              decoration: InputDecoration(
+                labelText: '@Group ID',
+                border: OutlineInputBorder(),
+                prefixText: "@",
+              ),
+            ),
+            const SizedBox(height: 16),
             // Placeholder for adding a background image
             TextButton(
               onPressed: () {
-                // needs logic for picking an image here
-                setState(() {
-                  backgroundImage = 'assets/sample_image.png'; // gotta add a test pic
-                });
+                pickImage();
               },
               child: Text('Select Background Image'),
             ),
