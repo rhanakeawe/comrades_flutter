@@ -5,7 +5,7 @@ class QueryList {
 
   Future<QuerySnapshot<Map<String, dynamic>>> fetchList(
       String collection, String field, String value,
-      [String? value2]) async {
+      [String? field2, String? value2]) async {
     if (value2 == null) {
       try {
         QuerySnapshot<Map<String, dynamic>> list = await _db
@@ -22,7 +22,7 @@ class QueryList {
         QuerySnapshot<Map<String, dynamic>> list = await _db
             .collection(collection)
             .where(field, isEqualTo: value)
-            .where(field, isEqualTo: value2)
+            .where(field2 as Object, isEqualTo: value2)
             .get();
         return list;
       } catch (e) {

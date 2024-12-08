@@ -10,7 +10,6 @@ import 'groupcard.dart';
 import 'groupspage.dart';
 import '../../notification/notification.dart';
 
-
 class Groups extends StatefulWidget {
   const Groups({super.key});
 
@@ -34,13 +33,13 @@ class _GroupsPageState extends State<Groups> {
     await manageCache.deleteCache('groups_data.json');
     groupsList.clear();
     getGroups();
-    NotificationService.showInstantNotification("Refreshed Groups", "Groups list has been refreshed!");
+    NotificationService.showInstantNotification(
+        "Refreshed Groups", "Groups list has been refreshed!");
   }
 
   Future<void> getGroups() async {
     final manageCache = ManageCache();
-    var loadedGroups =
-        await manageCache.loadListFromCache('groups_data.json');
+    var loadedGroups = await manageCache.loadListFromCache('groups_data.json');
 
     if (loadedGroups == null) {
       List<GroupData> groups = [];
@@ -96,6 +95,81 @@ class _GroupsPageState extends State<Groups> {
     }
   }
 
+  Offset _tapPosition = Offset.zero;
+  void _getTapPosition(TapDownDetails position) {
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    setState(() {
+      _tapPosition = renderBox.globalToLocal(position.globalPosition);
+    });
+  }
+
+  void _showContextMenu(context, Map<String, dynamic> group) async {
+    final RenderObject? overlay =
+        Overlay.of(context).context.findRenderObject();
+    final result = await showMenu(
+        context: context,
+        position: RelativeRect.fromRect(
+            Rect.fromLTWH(_tapPosition.dx, _tapPosition.dy, 10, 10),
+            Rect.fromLTWH(0, 0, overlay!.paintBounds.size.width,
+                overlay.paintBounds.size.height)),
+        items: [
+          const PopupMenuItem(
+            value: "Delete",
+            child: Text('Delete'),
+          )
+        ]);
+    switch (result) {
+      case "Delete":
+        deleteGroup(group["group_ID"], group);
+        break;
+    }
+  }
+
+  Future<void> deleteGroup(String groupID, Map<String, dynamic> group) async {
+    try{
+      QuerySnapshot<Map<String, dynamic>> groupUserListSnapshot =
+      await _queryList.fetchList("groupUserList", "ID_group", group["group_ID"], "userEmail",
+          FirebaseAuth.instance.currentUser!.email.toString());
+      for (var groupUser in groupUserListSnapshot.docs) {
+        print(groupUser.data());
+        db.collection("groupUserList").doc(groupUser.id).delete();
+      }
+    } catch (e) {
+      print("Error deleting groupUser: $e");
+    }
+    groupsList.remove(group);
+    final manageCache = ManageCache();
+    await manageCache.deleteCache('groups_data.json');
+    List<GroupData> groups = [];
+    try {
+      QuerySnapshot<Map<String, dynamic>> groupUserSnapshot =
+          await _queryList.fetchList("groupUserList", "userEmail",
+              FirebaseAuth.instance.currentUser!.email.toString());
+      for (var groupUser in groupUserSnapshot.docs) {
+        QuerySnapshot<Map<String, dynamic>> groupSnapshot = await _queryList
+            .fetchList("groups", "group_ID", groupUser.data()["ID_group"]);
+        for (var group in groupSnapshot.docs) {
+          print(group.data());
+          final gsReference = FirebaseStorage.instance
+              .refFromURL(group.data()["groupPhotoURL"]!);
+          String url = await gsReference.getDownloadURL();
+          setState(() {
+            groups.add(GroupData(
+                groupName: group.data()["groupName"],
+                group_ID: group.data()["group_ID"],
+                groupCreator: group.data()["groupCreator"],
+                groupDesc: group.data()["groupDesc"],
+                groupPhotoURL: url,
+                groupColor: group.data()["groupColor"].toString()));
+          });
+        }
+      }
+      await manageCache.saveListToCache('groups_data.json', groups);
+    } catch (e) {
+      print("Error refreshing group cache after delete: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,21 +218,29 @@ class _GroupsPageState extends State<Groups> {
                 itemCount: groupsList.length,
                 itemBuilder: (context, index) {
                   final group = groupsList[index];
-                  return GroupCard(
-                    name: group['name'],
-                    description: group['description'],
-                    backgroundImage: group['backgroundImage'],
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => GroupsPage(
-                            groupName: group['name'],
-                            groupID: group['group_ID'],
-                            backgroundImage: group['backgroundImage'],
-                          ),
-                        ),
-                      );
+                  return GestureDetector(
+                    onTapDown: (position) {
+                      _getTapPosition(position);
                     },
+                    onLongPress: () {
+                      _showContextMenu(context, group);
+                    },
+                    child: GroupCard(
+                      name: group['name'],
+                      description: group['description'],
+                      backgroundImage: group['backgroundImage'],
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => GroupsPage(
+                              groupName: group['name'],
+                              groupID: group['group_ID'],
+                              backgroundImage: group['backgroundImage'],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   );
                 },
               ),
