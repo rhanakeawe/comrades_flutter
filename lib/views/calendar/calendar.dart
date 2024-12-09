@@ -5,7 +5,6 @@ import 'week_view.dart';
 import 'month_view.dart';
 import 'placeholder_message.dart';
 
-
 class CalendarPage extends StatefulWidget {
   const CalendarPage({Key? key}) : super(key: key);
 
@@ -25,41 +24,45 @@ class _CalendarPageState extends State<CalendarPage> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              DateFormat.y().format(_focusedDay),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+        toolbarHeight: 80, // Adjusted height for proper spacing
+        title: Padding(
+          padding: const EdgeInsets.only(top: 20.0), // Adjusted padding
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                DateFormat.y().format(_focusedDay), // Displays "2024"
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            Row(
-              children: [
-                Text(
-                  DateFormat.MMMM().format(_focusedDay),
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+              Row(
+                children: [
+                  Text(
+                    DateFormat.MMMM().format(_focusedDay), // Displays "December"
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    _isMonthView ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                    color: Colors.white,
+                  IconButton(
+                    icon: Icon(
+                      _isMonthView ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isMonthView = !_isMonthView;
+                      });
+                    },
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _isMonthView = !_isMonthView;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
         actions: [
           GestureDetector(
@@ -72,7 +75,7 @@ class _CalendarPageState extends State<CalendarPage> {
             child: CircleAvatar(
               backgroundColor: Colors.blue.shade700,
               child: Text(
-                DateFormat.d().format(DateTime.now()),
+                DateFormat.d().format(DateTime.now()), // Current day
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -85,14 +88,14 @@ class _CalendarPageState extends State<CalendarPage> {
           IconButton(
             icon: const Icon(Icons.add, color: Colors.white),
             onPressed: () {
-              // TODO: Add functionality for adding events
+              // Add event logic
             },
           ),
         ],
       ),
       body: Column(
         children: [
-          const DaysOfWeek(),
+          DaysOfWeek(highlightCurrentDay: true), // Use the updated DaysOfWeek widget
           const Divider(
             height: 1,
             thickness: 1,
@@ -112,6 +115,7 @@ class _CalendarPageState extends State<CalendarPage> {
               : WeekView(
             focusedDay: _focusedDay,
             selectedDay: _selectedDay,
+            events: [], // Add events list here
             onDaySelected: (day) {
               setState(() {
                 _selectedDay = day;
