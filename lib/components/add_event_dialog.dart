@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AddEventDialog extends StatelessWidget {
   final Function(String title, DateTime startTime, DateTime endTime, bool isPersonal) onAddEvent;
 
-  const AddEventDialog({Key? key, required this.onAddEvent}) : super(key: key);
+  const AddEventDialog({super.key, required this.onAddEvent});
 
   @override
   Widget build(BuildContext context) {
