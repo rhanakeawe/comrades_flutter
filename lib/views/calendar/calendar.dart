@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'days_of_the_week.dart';
+import 'week_view.dart';
+import 'month_view.dart';
+import 'placeholder_message.dart';
+
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({Key? key}) : super(key: key);
@@ -67,7 +72,7 @@ class _CalendarPageState extends State<CalendarPage> {
             child: CircleAvatar(
               backgroundColor: Colors.blue.shade700,
               child: Text(
-                DateFormat.d().format(DateTime.now()), // Current Day
+                DateFormat.d().format(DateTime.now()),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -80,139 +85,41 @@ class _CalendarPageState extends State<CalendarPage> {
           IconButton(
             icon: const Icon(Icons.add, color: Colors.white),
             onPressed: () {
-
+              // TODO: Add functionality for adding events
             },
           ),
         ],
       ),
       body: Column(
         children: [
-          _buildDaysOfWeek(),
+          const DaysOfWeek(),
           const Divider(
             height: 1,
             thickness: 1,
             color: Colors.grey,
           ),
           const SizedBox(height: 16),
-          _isMonthView ? _buildMonthView() : _buildWeekView(), // Dynamic view
-          _buildPlaceholderMessage(),
+          _isMonthView
+              ? MonthView(
+            focusedDay: _focusedDay,
+            selectedDay: _selectedDay,
+            onDaySelected: (day) {
+              setState(() {
+                _selectedDay = day;
+              });
+            },
+          )
+              : WeekView(
+            focusedDay: _focusedDay,
+            selectedDay: _selectedDay,
+            onDaySelected: (day) {
+              setState(() {
+                _selectedDay = day;
+              });
+            },
+          ),
+          const PlaceholderMessage(),
         ],
-      ),
-    );
-  }
-
-  // Days of the week header (Bottom row with divider beneath)
-  Widget _buildDaysOfWeek() {
-    final days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-    return Container(
-      color: Colors.black, // Unified black color for the header
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: days
-            .map(
-              (day) => Text(
-            day,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        )
-            .toList(),
-      ),
-    );
-  }
-
-  // Week view for the calendar
-  Widget _buildWeekView() {
-    final startOfWeek = _focusedDay.subtract(Duration(days: _focusedDay.weekday - 1));
-    final daysInWeek = List.generate(7, (index) => startOfWeek.add(Duration(days: index)));
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: daysInWeek.map((day) {
-        final isSelected = day.day == _selectedDay.day &&
-            day.month == _selectedDay.month &&
-            day.year == _selectedDay.year;
-
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              _selectedDay = day;
-            });
-          },
-          child: Column(
-            children: [
-              Text(
-                '${day.day}',
-                style: TextStyle(
-                  fontSize: 18, // Slightly bigger font for the day
-                  fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? Colors.blue.shade700
-                      : Colors.grey.shade400,
-                ),
-              ),
-              const SizedBox(height: 4),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  // Month view for the calendar
-  Widget _buildMonthView() {
-    final daysInMonth = DateTime(_focusedDay.year, _focusedDay.month + 1, 0).day;
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 7,
-        crossAxisSpacing: 4,
-        mainAxisSpacing: 4,
-      ),
-      itemCount: daysInMonth,
-      itemBuilder: (context, index) {
-        final day = DateTime(_focusedDay.year, _focusedDay.month, index + 1);
-        final isSelected = day.day == _selectedDay.day &&
-            day.month == _selectedDay.month &&
-            day.year == _selectedDay.year;
-
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              _selectedDay = day;
-            });
-          },
-          child: Text(
-            '${index + 1}',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isSelected
-                  ? Colors.blue.shade700
-                  : Colors.grey.shade400,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // Placeholder message for no events
-  Widget _buildPlaceholderMessage() {
-    return Expanded(
-      child: Center(
-        child: Text(
-          "It looks like all your friends are busy today!",
-          style: const TextStyle(fontSize: 16, color: Colors.white),
-        ),
       ),
     );
   }
