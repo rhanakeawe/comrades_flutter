@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class InboxPage extends StatelessWidget {
   // Declare controllers
@@ -34,12 +34,34 @@ class InboxPage extends StatelessWidget {
                 textStyle: TextStyle(fontSize: 20),
               ),
               child: Text('SEND'),
-              onPressed: () {}
-            )
+              onPressed: () {
+                launch(
+                  toEmail: controllerTo.text,
+                  subject: controllerSubject.text,
+                  message: controllerMessage.text,
+                );
+              },
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> launch({
+    required String toEmail,
+    required String subject,
+    required String message,
+  }) async {
+    final Uri url = Uri(
+      scheme: 'mailto',
+      path: toEmail,
+      query: 'subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(message)}',
+    );
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    }
   }
 
   // Helper method to build the text fields
