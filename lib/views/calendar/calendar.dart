@@ -4,6 +4,8 @@ import 'days_of_the_week.dart';
 import 'week_view.dart';
 import 'month_view.dart';
 import 'placeholder_message.dart';
+import 'add_event.dart'; // Import the AddEventWidget
+import 'package:Comrades/data/event.dart'; // Import your Event model
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({Key? key}) : super(key: key);
@@ -16,6 +18,9 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   bool _isMonthView = false;
+
+  // Events list to store events
+  final List<Event> _events = [];
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +93,26 @@ class _CalendarPageState extends State<CalendarPage> {
           IconButton(
             icon: const Icon(Icons.add, color: Colors.white),
             onPressed: () {
-              // Add event logic
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AddEventWidget(
+                    onAddEvent: (title, startTime, endTime) {
+                      setState(() {
+                        _events.add(
+                          Event(
+                            title: title,
+                            startTime: startTime,
+                            endTime: endTime,
+                            participants: [],
+                            isPersonal: false,
+                          ),
+                        );
+                      });
+                    },
+                  );
+                },
+              );
             },
           ),
         ],
@@ -115,7 +139,7 @@ class _CalendarPageState extends State<CalendarPage> {
               : WeekView(
             focusedDay: _focusedDay,
             selectedDay: _selectedDay,
-            events: [], // Add events list here
+            events: _events, // Pass the events list here
             onDaySelected: (day) {
               setState(() {
                 _selectedDay = day;
