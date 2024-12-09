@@ -8,7 +8,7 @@ class Help extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Text(
-        'Hellp',
+        'Help',
         style: GoogleFonts.teko(color: Colors.white, fontSize: 48),
       ),
     );

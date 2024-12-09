@@ -132,15 +132,16 @@ class _MainPageState extends State<MainPage> {
             backgroundColor: Colors.yellow,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.inbox_rounded),
-            label: 'Inbox',
-            backgroundColor: Colors.blue,
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.notifications_rounded),
             label: 'Notifications',
             backgroundColor: Colors.green,
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.inbox_rounded),
+            label: 'Inbox',
+            backgroundColor: Colors.blue,
+          ),
+
 
         ],
       ),

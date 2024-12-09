@@ -1,14 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class InboxPage extends StatelessWidget {
-  const InboxPage({super.key});
+  // Declare controllers
+  final TextEditingController controllerTo = TextEditingController();
+  final TextEditingController controllerSubject = TextEditingController();
+  final TextEditingController controllerMessage = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text('Inbox'),
+      appBar: AppBar(
+        title: Text('Inbox'), // Title of the app bar
+        centerTitle: true,
       ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            buildTextField(title: 'To', controller: controllerTo),
+            const SizedBox(height: 16),
+            buildTextField(title: 'Subject', controller: controllerSubject),
+            const SizedBox(height: 16),
+            buildTextField(
+              title: 'Message',
+              controller: controllerMessage,
+              maxLines: 8,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size.fromHeight(50),
+                textStyle: TextStyle(fontSize: 20),
+              ),
+              child: Text('SEND'),
+              onPressed: () {}
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper method to build the text fields
+  Widget buildTextField({
+    required String title,
+    required TextEditingController controller,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+        ),
+      ],
     );
   }
 }
