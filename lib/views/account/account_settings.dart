@@ -1,6 +1,14 @@
+import 'dart:convert';
+
+import 'package:Comrades/data/notificaitonData.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../../data/manageCache.dart';
+import '../../data/userData.dart';
+import '../../main.dart';
 
 class Account_Settings extends StatefulWidget {
   const Account_Settings({super.key});
@@ -13,20 +21,59 @@ class _Account_SettingsState extends State<Account_Settings> {
   bool valNotify1 = true;
   bool valNotify2 = false;
   bool valNotify3 = false;
+  String userName = "";
+  String userEmail = "";
+  String userImage = "";
+  final manageCache =  ManageCache();
 
-  void onChangeFunction1(bool newValue1) {
+  @override
+  void initState() {
+    super.initState();
+    getUserData();
+  }
+
+  Future<void> getUserData() async {
+    final loadCache = ManageCache();
+    final cachedUserData = await loadCache.loadDataFromCache('user_data.json');
+    if (cachedUserData != null) {
+      final user = UserData.fromJson(jsonDecode(cachedUserData));
+      print('User loaded: ${user.userName}');
+      setState(() {
+        userName = user.userName;
+        userEmail = user.email;
+        userImage = user.profilePic;
+      });
+    } else {
+      print('No user cache found');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => MyApp()));
+      });
+    }
+  }
+
+  Future<void> showNotifications(bool newValue1) async {
+    var loadedNotificationSetting = await manageCache.loadListFromCache('notification_setting.json');
+    List<NotificationData> notificationData = [];
+    notificationData.add(NotificationData(toggled: newValue1.toString()));
+    if (loadedNotificationSetting == null) {
+      await manageCache.saveListToCache('notification_setting.json', notificationData);
+    } else {
+      await manageCache.deleteCache('notification_setting.json');
+      await manageCache.saveListToCache("notification_setting.json", notificationData);
+    }
     setState(() {
       valNotify1 = newValue1;
     });
   }
 
-  void onChangeFunction2(bool newValue2) {
+  void announcementsToggle(bool newValue2) {
     setState(() {
       valNotify2 = newValue2;
     });
   }
 
-  void onChangeFunction3(bool newValue3) {
+  void receiveNews(bool newValue3) {
     setState(() {
       valNotify3 = newValue3;
     });
@@ -35,92 +82,74 @@ class _Account_SettingsState extends State<Account_Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey,
-      body: FractionallySizedBox(
-        heightFactor: 0.9,
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
         child: Column(
-          children: [
-            SizedBox(
-              height: 20.0,
-              child: AppBar(
-                toolbarHeight: 30.0,
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      'Done',
-                      style: GoogleFonts.roboto(
-                        color: Colors.white,
-                        fontSize: 20,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: CachedNetworkImage(
+                      imageUrl: userImage,
+                      imageBuilder: (context, imageProvider) => CircleAvatar(
+                        backgroundImage: imageProvider,
                       ),
+                      placeholder: (context, url) => CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
                     ),
                   ),
+                  SizedBox(height: 8),
+                  Text(userName, style: GoogleFonts.roboto(fontSize: 22, fontWeight: FontWeight.w700),),
+                  Text("($userEmail)", style: GoogleFonts.roboto(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.grey[600]),)
                 ],
-                automaticallyImplyLeading: false,
-                backgroundColor: Colors.red,
               ),
             ),
             Expanded(
-              child: Column(
-                children: <Widget>[
-                  Icon(
-                    Icons.person,
-                    color: Colors.green,
-                  ),
-
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      child: ListView(
-                        children: [
-                          SizedBox(height: 10),
-                          Text(
-                            'Account settings',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Divider(height: 20, thickness: 1),
-                          SizedBox(height: 10),
-                          buildAccountOption(context, "Change Password"),
-                          buildAccountOption(context, "Content Settings"),
-                          buildAccountOption(context, "Social"),
-                          buildAccountOption(context, "Language"),
-                          buildAccountOption(context, "Privacy and Security"),
-                          SizedBox(height: 40),
-                          Row(
-                            children: [
-                              Icon(Icons.volume_up_outlined, color: Colors.blue),
-                              SizedBox(width: 10),
-                              Text(
-                                "Notifications",
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Divider(height: 20, thickness: 1),
-                          SizedBox(height: 10),
-                          buildNotificationOption("Show Notifications", valNotify1, onChangeFunction1),
-                          buildNotificationOption("Annocunments", valNotify2, onChangeFunction2),
-                          buildNotificationOption("Revieve NewsLetter", valNotify3, onChangeFunction3),
-                        ],
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                child: ListView(
+                  children: [
+                    SizedBox(height: 10),
+                    Text(
+                      'Account settings',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
+                    Divider(height: 20, thickness: 1),
+                    SizedBox(height: 10),
+                    buildAccountOption(context, "Change Password"),
+                    buildAccountOption(context, "Content Settings"),
+                    buildAccountOption(context, "Social"),
+                    buildAccountOption(context, "Language"),
+                    buildAccountOption(context, "Privacy and Security"),
+                    SizedBox(height: 40),
+                    Row(
+                      children: [
+                        Icon(Icons.volume_up_outlined, color: Colors.blue),
+                        SizedBox(width: 10),
+                        Text(
+                          "Notifications",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(height: 20, thickness: 1),
+                    SizedBox(height: 10),
+                    buildNotificationOption("Show Notifications", valNotify1, showNotifications),
+                    buildNotificationOption("Announcements", valNotify2, announcementsToggle),
+                    buildNotificationOption("Receive NewsLetter", valNotify3, receiveNews),
+                  ],
+                ),
               ),
             ),
           ],
@@ -169,10 +198,7 @@ class _Account_SettingsState extends State<Account_Settings> {
               title: Text(title),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text("Option 1"),
-                  Text("Option 2"),
-                ],
+                children: [],
               ),
               actions: [
                 TextButton(
