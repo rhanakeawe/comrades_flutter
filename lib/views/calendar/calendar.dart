@@ -30,37 +30,77 @@ class _CalendarPageState extends State<CalendarPage> {
   final List<Event> _events = [];
   List<Map<String, dynamic>> _groupAvailability = [];
 
+  // Fetch and set group availability for the selected day
   Future<void> _fetchAndSetGroupAvailability() async {
     final userEmail = FirebaseAuth.instance.currentUser?.email;
+
     if (userEmail != null) {
       try {
-        // Fetch availability from the service
-        final availability = await _availabilityService.getGroupAvailabilityForDay(
+        // Fetch raw availability data for the selected day
+        final rawAvailability = await _availabilityService.getGroupAvailabilityForDay(
           userEmail,
           _selectedDay,
         );
 
-        print("Fetched Group Availability: $availability"); // Debugging
+        // Convert Timestamp to DateTime
+        final availability = rawAvailability.map((item) {
+          return {
+            ...item,
+            'startTime': (item['startTime'] as Timestamp).toDate(),
+            'endTime': (item['endTime'] as Timestamp).toDate(),
+          };
+        }).toList();
 
+        // Fetch user non-negotiables
+        final nonNegotiables = await _availabilityService.getUserNonNegotiables(userEmail);
+        print("User non-negotiables fetched: $nonNegotiables");
+
+        // Debugging output to check non-negotiable documents
+        print("Fetched non-negotiables: ${nonNegotiables}");
+
+        // Filter availability using non-negotiables
+        final filteredAvailability = _availabilityService.filterByNonNegotiables(
+          availability,
+          nonNegotiables,
+        );
+
+        // Set state with filtered availability
         setState(() {
-          _groupAvailability = availability;
+          _groupAvailability = filteredAvailability;
         });
       } catch (e) {
-        print("Error fetching group availability: $e");
+        print("Error fetching availability or non-negotiables: $e");
       }
+    } else {
+      print("Error: User email is null.");
     }
   }
 
+  // Extract available dates from the group's availability
+  List<DateTime> _getAvailableDates() {
+    // Assuming _groupAvailability contains 'startTime' field with DateTime data
+    return _groupAvailability
+        .map((availability) => availability['startTime'])
+        .whereType<DateTime>()
+        .toList();
+  }
+
+  // Build the widget to display group availability
   Widget _buildGroupAvailabilityWidget() {
     if (_groupAvailability.isEmpty) {
-      return const PlaceholderMessage(
-        message: "No overlapping availability found for the selected day.",
+      return const Center(
+        child: PlaceholderMessage(
+          message: "No overlapping availability found for the selected day.",
+        ),
       );
     }
 
-    return GroupAvailabilityWidget(
-      groupAvailability: _groupAvailability,
-    ); // Use widget for group availability display
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GroupAvailabilityWidget(
+        groupAvailability: _groupAvailability,
+      ),
+    );
   }
 
   @override
@@ -160,7 +200,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       });
                     },
                     onAddUnavailability: (startTime, endTime) {
-                      // Add unavailability here if needed
+                      // Add unavailability if needed
                     },
                   );
                 },
@@ -169,7 +209,7 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
         ],
       ),
-      body: Column(
+      body: ListView(
         children: [
           DaysOfWeek(highlightCurrentDay: true),
           const Divider(
@@ -188,6 +228,7 @@ class _CalendarPageState extends State<CalendarPage> {
               });
               _fetchAndSetGroupAvailability();
             },
+            availableDates: _getAvailableDates(), // Pass available dates
           )
               : WeekView(
             focusedDay: _focusedDay,

@@ -14,7 +14,7 @@ class FriendGroup {
     required this.groupColor,
     required this.members,
     required this.visibleTo,
-  }) : groupId = groupId ?? const Uuid().v4();  // Auto-generate groupId if not provided
+  }) : groupId = groupId ?? const Uuid().v4(); // Auto-generate groupId if not provided
 
   // Convert FriendGroup to JSON
   Map<String, dynamic> toJson() {
@@ -30,11 +30,17 @@ class FriendGroup {
   // Create FriendGroup from JSON
   factory FriendGroup.fromJson(Map<String, dynamic> json) {
     return FriendGroup(
-      groupId: json['groupId'],
-      groupName: json['groupName'],
-      groupColor: Color(json['groupColor']),
-      members: List<String>.from(json['members']),
-      visibleTo: List<String>.from(json['visibleTo']),
+      groupId: json['groupId'] ?? const Uuid().v4(), // Ensure groupId fallback
+      groupName: json['groupName'] ?? 'Unknown Group',
+      groupColor: json['groupColor'] is int
+          ? Color(json['groupColor'])
+          : Colors.black, // Default color if parsing fails
+      members: json['members'] != null
+          ? List<String>.from(json['members'])
+          : [], // Ensure members is a list
+      visibleTo: json['visibleTo'] != null
+          ? List<String>.from(json['visibleTo'])
+          : [], // Ensure visibleTo is a list
     );
   }
 }

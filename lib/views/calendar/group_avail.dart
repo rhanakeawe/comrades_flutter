@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import for Timestamp
 
 class GroupAvailabilityWidget extends StatelessWidget {
   final List<Map<String, dynamic>> groupAvailability;
@@ -13,9 +14,15 @@ class GroupAvailabilityWidget extends StatelessWidget {
       itemCount: groupAvailability.length,
       itemBuilder: (context, index) {
         final availability = groupAvailability[index];
-        final groupName = availability['groupName'];
-        final startTime = availability['startTime'];
-        final endTime = availability['endTime'];
+        final groupName = availability['groupName'] ?? 'Unknown Group';
+
+        // Handle Timestamp conversion here
+        final startTime = availability['startTime'] is Timestamp
+            ? (availability['startTime'] as Timestamp).toDate()
+            : availability['startTime'];
+        final endTime = availability['endTime'] is Timestamp
+            ? (availability['endTime'] as Timestamp).toDate()
+            : availability['endTime'];
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
@@ -31,7 +38,7 @@ class GroupAvailabilityWidget extends StatelessWidget {
               children: [
                 // Top Row: Group Name
                 Text(
-                  groupName ?? 'Unknown Group',
+                  groupName,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -66,8 +73,8 @@ class GroupAvailabilityWidget extends StatelessWidget {
     );
   }
 
-  // Helper function to format DateTime
   String _formatDateTime(DateTime dateTime, BuildContext context) {
+    if (dateTime == null) return "Invalid Time";
     final timeOfDay = TimeOfDay.fromDateTime(dateTime);
     return timeOfDay.format(context);
   }

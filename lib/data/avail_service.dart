@@ -1,113 +1,109 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:Comrades/components/availability_utils.dart';
 
 class AvailabilityService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Fetch unavailability for a list of group members
-  Future<List<Map<String, DateTime>>> getUserUnavailability(
-      List<String> memberEmails) async {
-    if (memberEmails.isEmpty) {
-      return [
-        {
-          'startTime': DateTime(0, 0, 0, 0, 0),
-          'endTime': DateTime(23, 59),
-        }
-      ];
-    }
+  // Fetch user's non-negotiables from Firebase
+  Future<List<Map<String, dynamic>>> getUserNonNegotiables(String userEmail) async {
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(userEmail)
+          .collection('nonNegotiables')
+          .get();
 
-    final snapshot = await _firestore
-        .collection('userUnavailability')
-        .where('userEmail', whereIn: memberEmails)
-        .get();
+      // Debug print to check fetched documents
+      print("Fetched non-negotiables snapshot: ${snapshot.docs}");
 
-    return snapshot.docs.isNotEmpty
-        ? snapshot.docs.map((doc) {
-      final data = doc.data();
-      return {
-        'startTime': (data['startTime'] as Timestamp).toDate(),
-        'endTime': (data['endTime'] as Timestamp).toDate(),
-      };
-    }).toList()
-        : [
-      {
-        'startTime': DateTime(0, 0, 0, 0, 0),
-        'endTime': DateTime(23, 59),
-      }
-    ];
-  }
-
-  /// Fetch group availability for a specific day
-  Future<List<Map<String, dynamic>>> getGroupAvailabilityForDay(
-      String userEmail, DateTime selectedDay) async {
-    // Step 1: Fetch groups the user belongs to
-    final groupUserListSnapshot = await _firestore
-        .collection('groupUserList')
-        .where('userEmail', isEqualTo: userEmail)
-        .get();
-
-    final groupIDs = groupUserListSnapshot.docs
-        .map((doc) => doc['ID_group'] as String)
-        .toList();
-
-    if (groupIDs.isEmpty) {
+      return snapshot.docs.map((doc) {
+        print("Non-negotiable document data: ${doc.data()}");
+        return doc.data();
+      }).toList();
+    } catch (e) {
+      print("Error fetching non-negotiables: $e");
       return [];
     }
-
-    // Step 2: Fetch all members for these groups
-    final groupMembersSnapshot = await _firestore
-        .collection('groupUserList')
-        .where('ID_group', whereIn: groupIDs)
-        .get();
-
-    final memberEmails = groupMembersSnapshot.docs
-        .map((doc) => doc['userEmail'] as String)
-        .toList();
-
-    // Step 3: Fetch unavailability for all members
-    final userUnavailability = await getUserUnavailability(memberEmails);
-
-    // Step 4: Define the start and end of the selected day
-    DateTime dayStart =
-    DateTime(selectedDay.year, selectedDay.month, selectedDay.day, 0, 0);
-    DateTime dayEnd =
-    DateTime(selectedDay.year, selectedDay.month, selectedDay.day, 23, 59);
-
-    // Step 5: Fetch group names for mapping
-    final groupSnapshots = await _firestore
-        .collection('groups')
-        .where('group_ID', whereIn: groupIDs)
-        .get();
-
-    final groupNameMap = {
-      for (var doc in groupSnapshots.docs)
-        doc['group_ID']: doc['groupName'],
-    };
-
-
-    // Step 6: Calculate overlapping availability using AvailabilityUtils
-    final calculatedAvailability = AvailabilityUtils.getGroupAvailability(
-        [userUnavailability], dayStart, dayEnd);
-
-    // Map ID_group to groupName for display
-    return calculatedAvailability.map((slot) {
-      final groupID = slot['ID_group'];
-      return {
-        'ID_group': groupID,
-        'groupName': groupNameMap[groupID] ?? 'Unknown Group',
-        'startTime': slot['startTime'],
-        'endTime': slot['endTime'],
-      };
-    }).toList();
   }
 
-  /// Add unavailability for a group
-  Future<void> addUnavailabilityToFirestore(
-      String groupID, DateTime startTime, DateTime endTime) async {
-    await _firestore.collection('groupUnavailability').add({
-      'ID_group': groupID,
-      'startTime': startTime,
-      'endTime': endTime,
-    });
+  // Fetch group availability for a specific day
+  // Fetch group availability for a specific day
+  Future<List<Map<String, dynamic>>> getGroupAvailabilityForDay(String userEmail, DateTime selectedDay) async {
+    try {
+      final formattedDate = "${selectedDay.year}-${selectedDay.month}-${selectedDay.day}";
+
+      final snapshot = await _firestore
+          .collection('groups')
+          .where('members', arrayContains: userEmail)
+          .get();
+
+      // Debug print to check fetched documents
+      print("Fetched group availability snapshot: ${snapshot.docs}");
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        print("Group availability data: $data");
+
+        // Convert timestamps to DateTime (handle cases where data is not a Timestamp)
+        if (data['startTime'] is Timestamp && data['endTime'] is Timestamp) {
+          data['startTime'] = (data['startTime'] as Timestamp).toDate();
+          data['endTime'] = (data['endTime'] as Timestamp).toDate();
+        } else {
+          print("Error: startTime or endTime is not a valid Timestamp in document ID: ${doc.id}");
+          data['startTime'] = DateTime.now();  // Set default if timestamp is invalid
+          data['endTime'] = DateTime.now();    // Set default if timestamp is invalid
+        }
+
+        return {
+          ...data,
+          'date': formattedDate,
+        };
+      }).toList();
+    } catch (e) {
+      print("Error fetching group availability: $e");
+      return [];
+    }
+  }
+
+
+  // Filter availability by non-negotiables
+  List<Map<String, dynamic>> filterByNonNegotiables(
+      List<Map<String, dynamic>> availability,
+      List<Map<String, dynamic>> nonNegotiables) {
+    try {
+      print("Filtering availability based on non-negotiables...");
+
+      // Filter logic: Exclude time slots that conflict with non-negotiables
+      return availability.where((avail) {
+        return nonNegotiables.every((nonNeg) {
+          // Convert Timestamp to DateTime for both availability and non-negotiables
+          final availStart = (avail['startTime'] as Timestamp).toDate();
+          final availEnd = (avail['endTime'] as Timestamp).toDate();
+          final nonNegStart = (nonNeg['startTime'] as Timestamp).toDate();
+          final nonNegEnd = (nonNeg['endTime'] as Timestamp).toDate();
+
+          // Debug logs
+          print("Availability: $availStart to $availEnd");
+          print("Non-Negotiable: $nonNegStart to $nonNegEnd");
+
+          // Check for overlap between availability and non-negotiables
+          return availEnd.isBefore(nonNegStart) || availStart.isAfter(nonNegEnd);
+        });
+      }).toList();
+    } catch (e) {
+      print("Error filtering availability: $e");
+      return availability; // Return unfiltered availability on error
+    }
+  }
+
+  // Add a new member to a group
+  Future<void> addUserToGroup(String groupId, String userEmail) async {
+    try {
+      await _firestore.collection('groups').doc(groupId).update({
+        'members': FieldValue.arrayUnion([userEmail]),  // Add user email to the group
+      });
+      print("User added to group successfully.");
+    } catch (e) {
+      print("Error adding user to group: $e");
+    }
   }
 }

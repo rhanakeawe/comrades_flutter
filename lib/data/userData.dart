@@ -6,7 +6,7 @@ class UserData {
   UserData({
     required this.userName,
     required this.email,
-    required this.profilePic
+    required this.profilePic,
   });
 
   Map<String, dynamic> toJson() {
@@ -18,10 +18,10 @@ class UserData {
   }
 
   factory UserData.fromJson(Map<String, dynamic> json) {
-    return UserData (
-      userName: json['userName'],
-      email: json['email'],
-      profilePic: json['profilePic']
+    return UserData(
+      userName: json['userName'] is String ? json['userName'] : '',
+      email: json['email'] is String ? json['email'] : '',
+      profilePic: json['profilePic'] is String ? json['profilePic'] : '',
     );
   }
 }

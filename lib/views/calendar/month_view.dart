@@ -4,12 +4,14 @@ class MonthView extends StatelessWidget {
   final DateTime focusedDay;
   final DateTime selectedDay;
   final Function(DateTime) onDaySelected;
+  final List<DateTime> availableDates; // New parameter for available dates
 
   const MonthView({
     Key? key,
     required this.focusedDay,
     required this.selectedDay,
     required this.onDaySelected,
+    required this.availableDates, // Passing available dates
   }) : super(key: key);
 
   @override
@@ -32,14 +34,24 @@ class MonthView extends StatelessWidget {
             day.month == selectedDay.month &&
             day.year == selectedDay.year;
 
+        final isAvailable = availableDates.contains(day); // Check if the day is available
+
         return GestureDetector(
           onTap: () => onDaySelected(day),
-          child: Text(
-            '${index + 1}',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isSelected ? Colors.blue.shade700 : Colors.grey.shade400,
+          child: Container(
+            decoration: BoxDecoration(
+              color: isAvailable ? Colors.green.shade200 : Colors.transparent, // Highlight available dates
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Text(
+                '${index + 1}',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? Colors.blue.shade700 : Colors.grey.shade400,
+                ),
+              ),
             ),
           ),
         );

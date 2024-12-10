@@ -4,31 +4,23 @@ class QueryList {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   Future<QuerySnapshot<Map<String, dynamic>>> fetchList(
-      String collection, String field, String value,
-      [String? field2, String? value2]) async {
-    if (value2 == null) {
-      try {
-        QuerySnapshot<Map<String, dynamic>> list = await _db
-            .collection(collection)
-            .where(field, isEqualTo: value)
-            .get();
-        return list;
-      } catch (e) {
-        print("Error completing query: $e");
-        rethrow;
+      String collection,
+      String field,
+      String value, [
+        String? field2,
+        String? value2,
+      ]) async {
+    try {
+      Query<Map<String, dynamic>> query = _db.collection(collection).where(field, isEqualTo: value);
+
+      if (field2 != null && value2 != null) {
+        query = query.where(field2, isEqualTo: value2);
       }
-    } else {
-      try {
-        QuerySnapshot<Map<String, dynamic>> list = await _db
-            .collection(collection)
-            .where(field, isEqualTo: value)
-            .where(field2 as Object, isEqualTo: value2)
-            .get();
-        return list;
-      } catch (e) {
-        print("Error completing query: $e");
-        rethrow;
-      }
+
+      return await query.get();
+    } catch (e) {
+      print("Error completing query on collection '$collection': $e");
+      rethrow;
     }
   }
 }

@@ -5,7 +5,7 @@ class NonNegotiablesService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String? _currentUserEmail = FirebaseAuth.instance.currentUser?.email;
 
-  Future<_NonNegotiablesData> fetchNonNegotiables() async {
+  Future<NonNegotiablesData> fetchNonNegotiables() async {
     List<Map<String, dynamic>> nonNegotiablesList = [];
     List<String> documentIds = [];
 
@@ -14,6 +14,8 @@ class NonNegotiablesService {
           .collection("non-negotiables")
           .where("userEmail", isEqualTo: _currentUserEmail)
           .get();
+      print("Fetching non-negotiables for user: $_currentUserEmail");
+      print("Fetched documents: ${snapshot.docs.map((doc) => doc.data())}");
 
       for (var doc in snapshot.docs) {
         nonNegotiablesList.add({
@@ -26,7 +28,7 @@ class NonNegotiablesService {
       }
     }
 
-    return _NonNegotiablesData(
+    return NonNegotiablesData(
       nonNegotiablesList: nonNegotiablesList,
       documentIds: documentIds,
     );
@@ -62,11 +64,11 @@ class NonNegotiablesService {
   }
 }
 
-class _NonNegotiablesData {
+class NonNegotiablesData {
   final List<Map<String, dynamic>> nonNegotiablesList;
   final List<String> documentIds;
 
-  _NonNegotiablesData({
+  NonNegotiablesData({
     required this.nonNegotiablesList,
     required this.documentIds,
   });
