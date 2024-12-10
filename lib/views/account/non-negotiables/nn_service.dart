@@ -46,6 +46,20 @@ class NonNegotiablesService {
   Future<void> deleteNonNegotiable(String documentId) async {
     await _firestore.collection("non-negotiables").doc(documentId).delete();
   }
+
+  // New method to fetch non-negotiables for all group members
+  Future<Map<String, List<Map<String, dynamic>>>> fetchGroupNonNegotiables(List<String> groupEmails) async {
+    Map<String, List<Map<String, dynamic>>> groupNonNegotiables = {};
+    for (String email in groupEmails) {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
+          .collection("non-negotiables")
+          .where("userEmail", isEqualTo: email)
+          .get();
+
+      groupNonNegotiables[email] = snapshot.docs.map((doc) => doc.data()).toList();
+    }
+    return groupNonNegotiables;
+  }
 }
 
 class _NonNegotiablesData {

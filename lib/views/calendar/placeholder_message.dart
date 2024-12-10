@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PlaceholderMessage extends StatelessWidget {
-  const PlaceholderMessage({Key? key}) : super(key: key);
+  const PlaceholderMessage({super.key, required String message});
 
   @override
   Widget build(BuildContext context) {

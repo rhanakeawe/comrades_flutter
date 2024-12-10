@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'days_of_the_week.dart';
@@ -6,6 +8,7 @@ import 'month_view.dart';
 import 'placeholder_message.dart';
 import 'add_event.dart';
 import 'package:Comrades/data/event.dart';
+import 'package:Comrades/data/groupData.dart';
 import 'package:Comrades/components/availability_utils.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -20,21 +23,113 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime _selectedDay = DateTime.now();
   bool _isMonthView = false;
 
-  // Events list to store events
   final List<Event> _events = [];
-
-  // Unavailability list to store unavailable time intervals
   final List<Map<String, DateTime>> _unavailabilityList = [];
+  List<Map<String, dynamic>> _groupAvailability = [];
 
-  // Helper method to check availability using AvailabilityUtils
   bool _isAvailable(DateTime startTime, DateTime endTime) {
-    return AvailabilityUtils.isAvailable(startTime, endTime, _unavailabilityList);
+    return AvailabilityUtils.isAvailable(
+        startTime, endTime, _unavailabilityList);
   }
 
-  // Helper method to calculate group availability using AvailabilityUtils
-  List<Map<String, DateTime>> _getGroupAvailability(
-      List<List<Map<String, DateTime>>> groupUnavailabilityLists) {
-    return AvailabilityUtils.getGroupAvailability(groupUnavailabilityLists);
+  Future<List<Map<String, dynamic>>> _getGroupAvailabilityForDay() async {
+    // Fetch the user's groups from Firestore
+    final groupUserListSnapshot = await FirebaseFirestore.instance
+        .collection('groupUserList')
+        .where('userEmail', isEqualTo: FirebaseAuth.instance.currentUser?.email)
+        .get();
+
+    final groupIDs = groupUserListSnapshot.docs.map((doc) => doc['ID_group']).toList();
+
+    final groupsSnapshot = await FirebaseFirestore.instance
+        .collection('groups')
+        .where('group_ID', whereIn: groupIDs)
+        .get();
+
+    List<GroupData> groups = groupsSnapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return GroupData.fromJson(data);
+    }).toList();
+
+    // Simulate unavailability data for the fetched groups
+    List<List<Map<String, DateTime>>> groupUnavailabilityLists = groups.map((group) {
+      // Replace this with actual unavailability data for each group
+      return [
+        {
+          'startTime': DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day, 9, 0),
+          'endTime': DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day, 11, 0)
+        }
+      ];
+    }).toList();
+
+    DateTime dayStart =
+    DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day, 0, 0);
+    DateTime dayEnd = DateTime(
+        _selectedDay.year, _selectedDay.month, _selectedDay.day, 23, 59);
+
+    List<Map<String, dynamic>> calculatedAvailability = [];
+    for (int i = 0; i < groups.length; i++) {
+      List<Map<String, DateTime>> availability = AvailabilityUtils.getGroupAvailability(
+        [groupUnavailabilityLists[i]],
+        dayStart,
+        dayEnd,
+      );
+
+      for (var slot in availability) {
+        calculatedAvailability.add({
+          'groupName': groups[i].groupName,
+          'startTime': slot['startTime'],
+          'endTime': slot['endTime'],
+        });
+      }
+    }
+
+    return calculatedAvailability;
+  }
+
+
+  void _fetchAndSetGroupAvailability() async {
+    final availability = await _getGroupAvailabilityForDay();
+    setState(() {
+      _groupAvailability = availability;
+    });
+  }
+
+  Widget _buildGroupAvailabilityWidget() {
+    if (_groupAvailability.isEmpty) {
+      return const PlaceholderMessage(
+        message: "No overlapping availability found for the selected day.",
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _groupAvailability.length,
+      itemBuilder: (context, index) {
+        final availability = _groupAvailability[index];
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.green.shade700,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: const EdgeInsets.all(12.0),
+            child: Text(
+              "${availability['groupName']} - Available: ${DateFormat.jm().format(availability['startTime']!)} - ${DateFormat.jm().format(availability['endTime']!)}",
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAndSetGroupAvailability();
   }
 
   @override
@@ -70,7 +165,9 @@ class _CalendarPageState extends State<CalendarPage> {
                   ),
                   IconButton(
                     icon: Icon(
-                      _isMonthView ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                      _isMonthView
+                          ? Icons.arrow_drop_up
+                          : Icons.arrow_drop_down,
                       color: Colors.white,
                     ),
                     onPressed: () {
@@ -95,7 +192,7 @@ class _CalendarPageState extends State<CalendarPage> {
             child: CircleAvatar(
               backgroundColor: Colors.blue.shade700,
               child: Text(
-                DateFormat.d().format(DateTime.now()), // Current day
+                DateFormat.d().format(DateTime.now()),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -142,7 +239,7 @@ class _CalendarPageState extends State<CalendarPage> {
       ),
       body: Column(
         children: [
-          DaysOfWeek(highlightCurrentDay: true), // DaysOfWeek widget
+          DaysOfWeek(highlightCurrentDay: true),
           const Divider(
             height: 1,
             thickness: 1,
@@ -157,19 +254,22 @@ class _CalendarPageState extends State<CalendarPage> {
               setState(() {
                 _selectedDay = day;
               });
+              _fetchAndSetGroupAvailability();
             },
           )
               : WeekView(
             focusedDay: _focusedDay,
             selectedDay: _selectedDay,
-            events: _events, // Pass the events list here
+            events: _events,
             onDaySelected: (day) {
               setState(() {
                 _selectedDay = day;
               });
+              _fetchAndSetGroupAvailability();
             },
           ),
-          const PlaceholderMessage(),
+          const SizedBox(height: 16),
+          _buildGroupAvailabilityWidget(),
         ],
       ),
     );
