@@ -9,7 +9,7 @@ import 'package:Comrades/views/goals/goals.dart';
 import 'package:Comrades/views/inbox/inbox.dart';
 import 'package:Comrades/views/notifications/notifications.dart';
 import 'package:Comrades/views/account/help.dart';
-import 'package:Comrades/views/account/non-negotiables.dart';
+import 'package:Comrades/views/account/non-negotiables/non-neg.dart';
 import 'package:flutter/material.dart';
 import 'package:Comrades/views/account/account.dart';
 import 'package:Comrades/views/groups/groups.dart';
