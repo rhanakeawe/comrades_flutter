@@ -110,103 +110,105 @@ class _GoalsPageState extends State<GoalsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.black,
         body: Column(
-      children: [
-        SizedBox(
-          height: 16,
-        ),
-        GestureDetector(
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => AddGoal(goals: goalsList),
-              ),
-            );
-          },
-          child: Text(
-            '+ Add Goal',
-            style: TextStyle(
-              color: Colors.blueAccent,
-              fontSize: 16,
+          children: [
+            SizedBox(
+              height: 16,
             ),
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Expanded(
-            child: RefreshIndicator(
-          onRefresh: refreshGoals,
-          child: ListView.builder(
-              itemCount: goalsList.length,
-              itemBuilder: (context, index) {
-                final goal = goalsList[index];
-                return GFListTile(
-                  title: Center(
-                    child: Column(
-                      children: [
-                        Text(goal['name'],
-                            style: GoogleFonts.poppins(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white)),
-                        Text(goal['email'],
-                            style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontStyle: FontStyle.italic,
-                                color: Colors.white)),
-                        Text(goal['text'],
-                            style: GoogleFonts.poppins(
-                                fontSize: 15, color: Colors.white)),
-                      ],
-                    ),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => AddGoal(goals: goalsList),
                   ),
-                  description: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                );
+              },
+              child: Text(
+                '+ Add Goal',
+                style: TextStyle(
+                  color: Colors.blueAccent,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Expanded(
+                child: RefreshIndicator(
+              onRefresh: refreshGoals,
+              child: ListView.builder(
+                  itemCount: goalsList.length,
+                  itemBuilder: (context, index) {
+                    final goal = goalsList[index];
+                    return GFListTile(
+                      shadow: BoxShadow(color: Colors.blueAccent,blurRadius: 4),
+                      title: Center(
+                        child: Column(
                           children: [
-                            Column(
+                            Text(goal['name'],
+                                style: GoogleFonts.poppins(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white)),
+                            Text(goal['email'],
+                                style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.white)),
+                            Text(goal['text'],
+                                style: GoogleFonts.poppins(
+                                    fontSize: 15, color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                      description: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(goal['dayCount'],
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.white)),
-                                Text("Days left",
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white)),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Text(goal['dayStart'],
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.white)),
-                                Text("Started",
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white)),
+                                Column(
+                                  children: [
+                                    Text(goal['dayCount'],
+                                        style: GoogleFonts.poppins(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white)),
+                                    Text("Days left",
+                                        style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white)),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text(goal['dayStart'],
+                                        style: GoogleFonts.poppins(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white)),
+                                    Text("Started",
+                                        style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white)),
+                                  ],
+                                ),
                               ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                  color: Colors.lightBlue,
-                );
-              }),
-        ))
-      ],
-    ));
+                      ),
+                      color: Colors.lightBlue,
+                    );
+                  }),
+            ))
+          ],
+        ));
   }
 }

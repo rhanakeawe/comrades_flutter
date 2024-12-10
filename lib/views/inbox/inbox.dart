@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class InboxPage extends StatelessWidget {
@@ -10,9 +11,11 @@ class InboxPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Inbox'), // Title of the app bar
+        title: Text('Inbox', style: GoogleFonts.roboto(fontSize: 25, color: Colors.white),), // Title of the app bar
         centerTitle: true,
+        backgroundColor: Colors.black,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -33,7 +36,7 @@ class InboxPage extends StatelessWidget {
                 minimumSize: Size.fromHeight(50),
                 textStyle: TextStyle(fontSize: 20),
               ),
-              child: Text('SEND'),
+              child: Text('SEND', style: GoogleFonts.roboto(fontSize: 20, color: Colors.black),),
               onPressed: () {
                 launch(
                   toEmail: controllerTo.text,
@@ -75,7 +78,7 @@ class InboxPage extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const SizedBox(height: 8),
         TextField(

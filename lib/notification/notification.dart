@@ -1,5 +1,5 @@
 import 'package:Comrades/data/manageCache.dart';
-import 'package:Comrades/data/notificaitonData.dart';
+import 'package:Comrades/data/notificationSettingData.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -47,7 +47,7 @@ class NotificationService {
     final manageCache = ManageCache();
     var loadedNotificationSetting = await manageCache.loadListFromCache('notification_setting.json');
     if (loadedNotificationSetting != null) {
-      loadedNotificationSetting = loadedNotificationSetting as List<NotificationData>;
+      loadedNotificationSetting = loadedNotificationSetting as List<NotificationSettingData>;
       for (var setting in loadedNotificationSetting) {
         if (setting.toggled != "true") {
           isToggled = false;
@@ -55,8 +55,8 @@ class NotificationService {
       }
     } else {
       print("No loaded setting");
-      List<NotificationData> notificationData = [];
-      notificationData.add(NotificationData(toggled: "true"));
+      List<NotificationSettingData> notificationData = [];
+      notificationData.add(NotificationSettingData(toggled: "true"));
       await manageCache.saveListToCache('notification_setting.json', notificationData);
     }
     return isToggled;
