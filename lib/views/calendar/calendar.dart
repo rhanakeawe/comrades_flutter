@@ -7,9 +7,9 @@ import 'week_view.dart';
 import 'month_view.dart';
 import 'placeholder_message.dart';
 import 'add_event.dart';
-import 'group_avail.dart'; // Importing group_avail.dart for group availability display
+import 'group_avail.dart';
 import 'package:Comrades/data/event.dart';
-import 'package:Comrades/data/avail_service.dart'; // Importing avail_service.dart for Firestore logic
+import 'package:Comrades/data/avail_service.dart';
 import 'package:Comrades/data/groupData.dart';
 import 'package:Comrades/components/availability_utils.dart';
 
@@ -28,35 +28,27 @@ class _CalendarPageState extends State<CalendarPage> {
   bool _isMonthView = false;
 
   final List<Event> _events = [];
-  final List<Map<String, DateTime>> _unavailabilityList = [];
   List<Map<String, dynamic>> _groupAvailability = [];
-
-  bool _isAvailable(DateTime startTime, DateTime endTime) {
-    return AvailabilityUtils.isAvailable(
-        startTime, endTime, _unavailabilityList);
-  }
 
   Future<void> _fetchAndSetGroupAvailability() async {
     final userEmail = FirebaseAuth.instance.currentUser?.email;
     if (userEmail != null) {
-      final availability =
-      await _availabilityService.getGroupAvailabilityForDay(
-        userEmail,
-        _selectedDay,
-      );
-      setState(() {
-        _groupAvailability = availability;
-      });
-    }
-  }
+      try {
+        // Fetch availability from the service
+        final availability = await _availabilityService.getGroupAvailabilityForDay(
+          userEmail,
+          _selectedDay,
+        );
 
-  Future<void> _addUnavailabilityToFirestore(
-      DateTime startTime, DateTime endTime, String groupID) async {
-    await _availabilityService.addUnavailabilityToFirestore(
-      groupID,
-      startTime,
-      endTime,
-    );
+        print("Fetched Group Availability: $availability"); // Debugging
+
+        setState(() {
+          _groupAvailability = availability;
+        });
+      } catch (e) {
+        print("Error fetching group availability: $e");
+      }
+    }
   }
 
   Widget _buildGroupAvailabilityWidget() {
@@ -68,7 +60,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
     return GroupAvailabilityWidget(
       groupAvailability: _groupAvailability,
-    ); // Using the new widget
+    ); // Use widget for group availability display
   }
 
   @override
@@ -168,16 +160,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       });
                     },
                     onAddUnavailability: (startTime, endTime) {
-                      final groupID =
-                          'personal'; // Replace with actual group ID if needed
-                      _addUnavailabilityToFirestore(
-                          startTime, endTime, groupID);
-                      setState(() {
-                        _unavailabilityList.add({
-                          'startTime': startTime,
-                          'endTime': endTime,
-                        });
-                      });
+                      // Add unavailability here if needed
                     },
                   );
                 },
