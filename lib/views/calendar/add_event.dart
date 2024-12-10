@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 class AddEventWidget extends StatefulWidget {
   final Function(String title, DateTime startTime, DateTime endTime) onAddEvent;
+  final Function(DateTime startTime, DateTime endTime) onAddUnavailability;
 
-  const AddEventWidget({Key? key, required this.onAddEvent}) : super(key: key);
+  const AddEventWidget({
+    super.key,
+    required this.onAddEvent,
+    required this.onAddUnavailability,
+  });
 
   @override
   State<AddEventWidget> createState() => _AddEventWidgetState();
@@ -45,6 +50,45 @@ class _AddEventWidgetState extends State<AddEventWidget> {
           }
         });
       }
+    }
+  }
+
+  void _validateAndAddEvent() {
+    if (_titleController.text.isNotEmpty &&
+        _startTime != null &&
+        _endTime != null) {
+      if (_startTime!.isBefore(_endTime!)) {
+        // Add the event
+        widget.onAddEvent(
+          _titleController.text,
+          _startTime!,
+          _endTime!,
+        );
+
+        // Add unavailability
+        widget.onAddUnavailability(
+          _startTime!,
+          _endTime!,
+        );
+
+        Navigator.pop(context);
+      } else {
+        // Show error if start time is after end time
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Start time must be before end time'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } else {
+      // Show error if any field is empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All fields are required'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -106,18 +150,7 @@ class _AddEventWidgetState extends State<AddEventWidget> {
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_titleController.text.isNotEmpty &&
-                        _startTime != null &&
-                        _endTime != null) {
-                      widget.onAddEvent(
-                        _titleController.text,
-                        _startTime!,
-                        _endTime!,
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
+                  onPressed: _validateAndAddEvent,
                   child: const Text('Add'),
                 ),
               ],
