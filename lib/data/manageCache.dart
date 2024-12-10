@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:Comrades/data/goalData.dart';
+import 'package:Comrades/data/notificaitonData.dart';
 
 import 'appCacheManager.dart';
 import 'groupData.dart';
@@ -25,8 +26,11 @@ class ManageCache {
     } else if (filename == 'goals_data.json') {
       list = list as List<GoalData>;
       listJson = list.map((item) => item.toJson()).toList();
+    } else if (filename == 'notification_setting.json') {
+      list = list as List<NotificationData>;
+      listJson = list.map((item) => item.toJson()).toList();
     }
-    print("length: ${list.length}");
+    print("length: ${list}");
 
     final jsonString = jsonEncode(listJson);
 
@@ -45,6 +49,8 @@ class ManageCache {
         return jsonData.map((json) => GroupData.fromJson(json)).toList();
       } else if (filename == 'goals_data.json') {
         return jsonData.map((json) => GoalData.fromJson(json)).toList();
+      } else if (filename == 'notification_setting.json') {
+        return jsonData.map((json) => NotificationData.fromJson(json)).toList();
       }
     }
     return null;
