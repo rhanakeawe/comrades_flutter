@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({super.key});
@@ -9,9 +11,41 @@ class CreateGroupScreen extends StatefulWidget {
 
 class _CreateGroupScreenState extends State<CreateGroupScreen> {
   String groupName = '';
-  Color groupColor = Colors.blue; // Default color
-  List<String> members = [];
-  TextEditingController memberController = TextEditingController();
+  String groupDesc = '';
+  String groupID = '';
+  File? backgroundImage; // File to store the selected image
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        backgroundImage = File(pickedFile.path);
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No image selected')),
+      );
+    }
+  }
+
+  void _saveGroup() {
+    if (groupName.isEmpty || groupDesc.isEmpty || groupID.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields.')),
+      );
+      return;
+    }
+
+    // Logic to save group, e.g., Firestore
+    print('Group saved: $groupName, $groupDesc, $groupID');
+    if (backgroundImage != null) {
+      print('Background image selected: ${backgroundImage!.path}');
+    }
+
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,90 +55,56 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              decoration: const InputDecoration(labelText: 'Group Name'),
-              onChanged: (value) {
-                setState(() {
-                  groupName = value;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            const Text('Pick a Color:'),
-            Row(
-              children: [
-                ColorOption(color: Colors.blue, selectedColor: groupColor, onTap: () {
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                decoration: const InputDecoration(labelText: 'Group Name'),
+                onChanged: (value) {
                   setState(() {
-                    groupColor = Colors.blue;
+                    groupName = value;
                   });
-                }),
-                ColorOption(color: Colors.red, selectedColor: groupColor, onTap: () {
-                  setState(() {
-                    groupColor = Colors.red;
-                  });
-                }),
-                // Add more colors as needed
-              ],
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: memberController,
-              decoration: const InputDecoration(
-                labelText: 'Add Member',
-                suffixIcon: Icon(Icons.add),
+                },
               ),
-              onSubmitted: (value) {
-                setState(() {
-                  members.add(value);
-                  memberController.clear();
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Logic for saving the group and navigating back
-                print('Group created: $groupName, Color: $groupColor, Members: $members');
-                Navigator.pop(context);
-              },
-              child: const Text('Save Group'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ColorOption extends StatelessWidget {
-  final Color color;
-  final Color selectedColor;
-  final VoidCallback onTap;
-
-  const ColorOption({
-    required this.color,
-    required this.selectedColor,
-    required this.onTap,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4.0),
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: selectedColor == color ? Colors.black : Colors.transparent,
-            width: 2,
+              const SizedBox(height: 16),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Group Description'),
+                onChanged: (value) {
+                  setState(() {
+                    groupDesc = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                decoration: const InputDecoration(labelText: '@Group ID'),
+                onChanged: (value) {
+                  setState(() {
+                    groupID = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: _pickImage,
+                child: const Text('Select Background Image'),
+              ),
+              if (backgroundImage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Image.file(
+                    backgroundImage!,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _saveGroup,
+                child: const Text('Save Group'),
+              ),
+            ],
           ),
         ),
       ),
