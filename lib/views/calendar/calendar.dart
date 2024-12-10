@@ -32,14 +32,23 @@ class _CalendarPageState extends State<CalendarPage> {
         startTime, endTime, _unavailabilityList);
   }
 
+  Future<void> _addUnavailabilityToFirestore(
+      DateTime startTime, DateTime endTime, String groupID) async {
+    await FirebaseFirestore.instance.collection('groupUnavailability').add({
+      'ID_group': groupID,
+      'startTime': startTime,
+      'endTime': endTime,
+    });
+  }
+
   Future<List<Map<String, dynamic>>> _getGroupAvailabilityForDay() async {
-    // Fetch the user's groups from Firestore
     final groupUserListSnapshot = await FirebaseFirestore.instance
         .collection('groupUserList')
         .where('userEmail', isEqualTo: FirebaseAuth.instance.currentUser?.email)
         .get();
 
-    final groupIDs = groupUserListSnapshot.docs.map((doc) => doc['ID_group']).toList();
+    final groupIDs =
+        groupUserListSnapshot.docs.map((doc) => doc['ID_group']).toList();
 
     final groupsSnapshot = await FirebaseFirestore.instance
         .collection('groups')
@@ -51,25 +60,34 @@ class _CalendarPageState extends State<CalendarPage> {
       return GroupData.fromJson(data);
     }).toList();
 
-    // Simulate unavailability data for the fetched groups
-    List<List<Map<String, DateTime>>> groupUnavailabilityLists = groups.map((group) {
-      // Replace this with actual unavailability data for each group
-      return [
-        {
-          'startTime': DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day, 9, 0),
-          'endTime': DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day, 11, 0)
-        }
-      ];
-    }).toList();
+    List<List<Map<String, DateTime>>> groupUnavailabilityLists = [];
+    for (var group in groups) {
+      final unavailabilitySnapshot = await FirebaseFirestore.instance
+          .collection('groupUnavailability')
+          .where('ID_group', isEqualTo: group.group_ID)
+          .get();
+
+      List<Map<String, DateTime>> unavailability =
+          unavailabilitySnapshot.docs.map((doc) {
+        final data = doc.data();
+        return {
+          'startTime': (data['startTime'] as Timestamp).toDate(),
+          'endTime': (data['endTime'] as Timestamp).toDate(),
+        };
+      }).toList();
+
+      groupUnavailabilityLists.add(unavailability);
+    }
 
     DateTime dayStart =
-    DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day, 0, 0);
+        DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day, 0, 0);
     DateTime dayEnd = DateTime(
         _selectedDay.year, _selectedDay.month, _selectedDay.day, 23, 59);
 
     List<Map<String, dynamic>> calculatedAvailability = [];
     for (int i = 0; i < groups.length; i++) {
-      List<Map<String, DateTime>> availability = AvailabilityUtils.getGroupAvailability(
+      List<Map<String, DateTime>> availability =
+          AvailabilityUtils.getGroupAvailability(
         [groupUnavailabilityLists[i]],
         dayStart,
         dayEnd,
@@ -86,7 +104,6 @@ class _CalendarPageState extends State<CalendarPage> {
 
     return calculatedAvailability;
   }
-
 
   void _fetchAndSetGroupAvailability() async {
     final availability = await _getGroupAvailabilityForDay();
@@ -223,6 +240,10 @@ class _CalendarPageState extends State<CalendarPage> {
                       });
                     },
                     onAddUnavailability: (startTime, endTime) {
+                      final groupID =
+                          'personal'; // Replace with actual group ID if needed
+                      _addUnavailabilityToFirestore(
+                          startTime, endTime, groupID);
                       setState(() {
                         _unavailabilityList.add({
                           'startTime': startTime,
@@ -248,26 +269,26 @@ class _CalendarPageState extends State<CalendarPage> {
           const SizedBox(height: 16),
           _isMonthView
               ? MonthView(
-            focusedDay: _focusedDay,
-            selectedDay: _selectedDay,
-            onDaySelected: (day) {
-              setState(() {
-                _selectedDay = day;
-              });
-              _fetchAndSetGroupAvailability();
-            },
-          )
+                  focusedDay: _focusedDay,
+                  selectedDay: _selectedDay,
+                  onDaySelected: (day) {
+                    setState(() {
+                      _selectedDay = day;
+                    });
+                    _fetchAndSetGroupAvailability();
+                  },
+                )
               : WeekView(
-            focusedDay: _focusedDay,
-            selectedDay: _selectedDay,
-            events: _events,
-            onDaySelected: (day) {
-              setState(() {
-                _selectedDay = day;
-              });
-              _fetchAndSetGroupAvailability();
-            },
-          ),
+                  focusedDay: _focusedDay,
+                  selectedDay: _selectedDay,
+                  events: _events,
+                  onDaySelected: (day) {
+                    setState(() {
+                      _selectedDay = day;
+                    });
+                    _fetchAndSetGroupAvailability();
+                  },
+                ),
           const SizedBox(height: 16),
           _buildGroupAvailabilityWidget(),
         ],
