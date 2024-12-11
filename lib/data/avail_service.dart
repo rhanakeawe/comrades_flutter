@@ -26,7 +26,6 @@ class AvailabilityService {
   }
 
   // Fetch group availability for a specific day
-  // Fetch group availability for a specific day
   Future<List<Map<String, dynamic>>> getGroupAvailabilityForDay(String userEmail, DateTime selectedDay) async {
     try {
       final formattedDate = "${selectedDay.year}-${selectedDay.month}-${selectedDay.day}";
@@ -43,14 +42,17 @@ class AvailabilityService {
         final data = doc.data();
         print("Group availability data: $data");
 
-        // Convert timestamps to DateTime (handle cases where data is not a Timestamp)
-        if (data['startTime'] is Timestamp && data['endTime'] is Timestamp) {
+        // Handle null values and convert timestamps to DateTime
+        if (data['startTime'] != null && data['startTime'] is Timestamp) {
           data['startTime'] = (data['startTime'] as Timestamp).toDate();
+        } else {
+          data['startTime'] = DateTime.now(); // Default to current time if null
+        }
+
+        if (data['endTime'] != null && data['endTime'] is Timestamp) {
           data['endTime'] = (data['endTime'] as Timestamp).toDate();
         } else {
-          print("Error: startTime or endTime is not a valid Timestamp in document ID: ${doc.id}");
-          data['startTime'] = DateTime.now();  // Set default if timestamp is invalid
-          data['endTime'] = DateTime.now();    // Set default if timestamp is invalid
+          data['endTime'] = DateTime.now(); // Default to current time if null
         }
 
         return {
@@ -63,6 +65,8 @@ class AvailabilityService {
       return [];
     }
   }
+
+
 
 
   // Filter availability by non-negotiables

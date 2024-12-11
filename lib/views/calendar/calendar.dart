@@ -7,90 +7,133 @@ import 'week_view.dart';
 import 'month_view.dart';
 import 'placeholder_message.dart';
 import 'add_event.dart';
-import 'group_avail.dart';
+import 'group_avail.dart'; // GroupAvailabilityWidget
 import 'package:Comrades/data/event.dart';
 import 'package:Comrades/data/avail_service.dart';
 import 'package:Comrades/data/groupData.dart';
 import 'package:Comrades/components/availability_utils.dart';
+import 'event_view.dart'; // Import the EventView widget
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
 
   @override
-  _CalendarPageState createState() => _CalendarPageState();
+  CalendarPageState createState() => CalendarPageState();
 }
 
-class _CalendarPageState extends State<CalendarPage> {
+class CalendarPageState extends State<CalendarPage> {
   final AvailabilityService _availabilityService = AvailabilityService();
 
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   bool _isMonthView = false;
 
-  final List<Event> _events = [];
+  List<Event> _events = []; // List<Event> for events
   List<Map<String, dynamic>> _groupAvailability = [];
+  List<Map<String, dynamic>> _userEvents = []; // Store user events
 
-  // Fetch and set group availability for the selected day
+  @override
+  void initState() {
+    super.initState();
+
+    // Manually adding events for testing purposes
+    _events = [
+      Event(
+        title: 'Study',
+        startTime: DateTime(2024, 12, 9, 10, 0),
+        endTime: DateTime(2024, 12, 9, 20, 0),
+        participants: [],
+        isPersonal: false,
+      ),
+      Event(
+        title: 'School',
+        startTime: DateTime(2024, 12, 10, 9, 0),
+        endTime: DateTime(2024, 12, 10, 17, 0),
+        participants: [],
+        isPersonal: false,
+      ),
+      Event(
+        title: 'School',
+        startTime: DateTime(2024, 12, 13, 9, 0),
+        endTime: DateTime(2024, 12, 13, 17, 0),
+        participants: [],
+        isPersonal: false,
+      ),
+      Event(
+        title: 'Study',
+        startTime: DateTime(2024, 12, 15, 17, 0),
+        endTime: DateTime(2024, 12, 15, 20, 0),
+        participants: [],
+        isPersonal: false,
+      ),
+      Event(
+        title: 'Date',
+        startTime: DateTime(2024, 12, 16, 19, 0),
+        endTime: DateTime(2024, 12, 16, 22, 0),
+        participants: [],
+        isPersonal: false,
+      ),
+      Event(
+        title: 'Cry',
+        startTime: DateTime(2024, 12, 17, 8, 0),
+        endTime: DateTime(2024, 12, 17, 22, 0),
+        participants: [],
+        isPersonal: false,
+      ),
+    ];
+
+    // Manually adding group availability for testing purposes
+    _groupAvailability = [
+      {
+        'groupName': 'Comrades',
+        'startTime': DateTime(2024, 12, 9, 20, 0),
+        'endTime': DateTime(2024, 12, 9, 22, 0),
+      },
+      {
+        'groupName': 'Beaners',
+        'startTime': DateTime(2024, 12, 10, 17, 0),
+        'endTime': DateTime(2024, 12, 10, 22, 0),
+      },
+      {
+        'groupName': 'Grass Party',
+        'startTime': DateTime(2024, 12, 13, 17, 0),
+        'endTime': DateTime(2024, 12, 13, 22, 0),
+      },
+      {
+        'groupName': 'Comrades',
+        'startTime': DateTime(2024, 12, 12, 17, 0),
+        'endTime': DateTime(2024, 12, 12, 19, 0),
+      },
+      {
+        'groupName': 'Testers',
+        'startTime': DateTime(2024, 12, 11, 17, 0),
+        'endTime': DateTime(2024, 12, 11, 22, 0),
+      },
+    ];
+
+    // Simulating fetch
+    _fetchAndSetGroupAvailability();
+  }
+
   Future<void> _fetchAndSetGroupAvailability() async {
+    // Simulated fetch function to mimic fetching data
     final userEmail = FirebaseAuth.instance.currentUser?.email;
 
     if (userEmail != null) {
-      try {
-        // Fetch raw availability data for the selected day
-        final rawAvailability = await _availabilityService.getGroupAvailabilityForDay(
-          userEmail,
-          _selectedDay,
-        );
-
-        // Convert Timestamp to DateTime
-        final availability = rawAvailability.map((item) {
-          return {
-            ...item,
-            'startTime': (item['startTime'] as Timestamp).toDate(),
-            'endTime': (item['endTime'] as Timestamp).toDate(),
-          };
-        }).toList();
-
-        // Fetch user non-negotiables
-        final nonNegotiables = await _availabilityService.getUserNonNegotiables(userEmail);
-        print("User non-negotiables fetched: $nonNegotiables");
-
-        // Debugging output to check non-negotiable documents
-        print("Fetched non-negotiables: ${nonNegotiables}");
-
-        // Filter availability using non-negotiables
-        final filteredAvailability = _availabilityService.filterByNonNegotiables(
-          availability,
-          nonNegotiables,
-        );
-
-        // Set state with filtered availability
-        setState(() {
-          _groupAvailability = filteredAvailability;
-        });
-      } catch (e) {
-        print("Error fetching availability or non-negotiables: $e");
-      }
+      setState(() {
+        _groupAvailability = _groupAvailability; // Using predefined group availability
+        _userEvents = _userEvents; // Using predefined user events
+      });
     } else {
       print("Error: User email is null.");
     }
   }
 
-  // Extract available dates from the group's availability
-  List<DateTime> _getAvailableDates() {
-    // Assuming _groupAvailability contains 'startTime' field with DateTime data
-    return _groupAvailability
-        .map((availability) => availability['startTime'])
-        .whereType<DateTime>()
-        .toList();
-  }
-
-  // Build the widget to display group availability
   Widget _buildGroupAvailabilityWidget() {
-    if (_groupAvailability.isEmpty) {
+    if (_groupAvailability.isEmpty && _userEvents.isEmpty) {
       return const Center(
         child: PlaceholderMessage(
-          message: "No overlapping availability found for the selected day.",
+          message: "No availability or events found for the selected day.",
         ),
       );
     }
@@ -99,14 +142,9 @@ class _CalendarPageState extends State<CalendarPage> {
       padding: const EdgeInsets.all(8.0),
       child: GroupAvailabilityWidget(
         groupAvailability: _groupAvailability,
+        userEvents: _userEvents,
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchAndSetGroupAvailability();
   }
 
   @override
@@ -228,12 +266,14 @@ class _CalendarPageState extends State<CalendarPage> {
               });
               _fetchAndSetGroupAvailability();
             },
-            availableDates: _getAvailableDates(), // Pass available dates
+            availableDates: _convertGroupAvailabilityToDateTime(_groupAvailability), // Pass converted available dates
+            groupAvailability: _groupAvailability,
+            userEvents: _convertEventsToMap(_events),
           )
               : WeekView(
             focusedDay: _focusedDay,
             selectedDay: _selectedDay,
-            events: _events,
+            events: _convertEventsToMap(_events),
             onDaySelected: (day) {
               setState(() {
                 _selectedDay = day;
@@ -243,8 +283,52 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
           const SizedBox(height: 16),
           _buildGroupAvailabilityWidget(),
+          const SizedBox(height: 16),
+          // Only display events for the selected day
+          ..._getEventsForSelectedDay().map((event) => EventView(
+            title: event.title,
+            startTime: event.startTime,
+            endTime: event.endTime,
+          )).toList(),
         ],
       ),
     );
+  }
+
+  List<Map<String, dynamic>> _convertGroupAvailabilityToDateTime(List<Map<String, dynamic>> groupAvailability) {
+    return groupAvailability.map((availability) {
+      return {
+        'startTime': availability['startTime'],
+        'endTime': availability['endTime'],
+      };
+    }).toList();
+  }
+
+  // Convert events (List<Event>) to List<Map<String, dynamic>>
+  List<Map<String, dynamic>> _convertEventsToMap(List<Event> events) {
+    return events.map((event) {
+      return {
+        'eventTitle': event.title,
+        'startTime': event.startTime, // DateTime directly
+        'endTime': event.endTime,     // DateTime directly
+        'participants': event.participants,
+        'isPersonal': event.isPersonal,
+      };
+    }).toList();
+  }
+
+  // Get events for the selected day
+  List<Event> _getEventsForSelectedDay() {
+    return _events.where((event) {
+      final eventDate = DateTime(event.startTime.year, event.startTime.month, event.startTime.day);
+      return eventDate.isAtSameMomentAs(_selectedDay);
+    }).toList();
+  }
+
+  List<DateTime> _getAvailableDates() {
+    return _groupAvailability
+        .map((availability) => availability['startTime'])
+        .whereType<DateTime>()
+        .toList();
   }
 }

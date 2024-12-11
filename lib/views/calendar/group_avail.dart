@@ -1,28 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import for Timestamp
 
 class GroupAvailabilityWidget extends StatelessWidget {
   final List<Map<String, dynamic>> groupAvailability;
+  final List<Map<String, dynamic>> userEvents;
 
-  const GroupAvailabilityWidget({required this.groupAvailability, super.key});
+  const GroupAvailabilityWidget({
+    required this.groupAvailability,
+    required this.userEvents,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Separate group availability and user events, and sort each by time
+    List<Map<String, dynamic>> sortedGroupAvailability = [];
+    sortedGroupAvailability.addAll(groupAvailability);
+
+    // Sort the group availability by start time (ensure startTime and endTime are DateTime)
+    sortedGroupAvailability.sort((a, b) {
+      DateTime aStart = a['startTime'] as DateTime; // Make sure it's a DateTime object
+      DateTime bStart = b['startTime'] as DateTime; // Make sure it's a DateTime object
+      return aStart.compareTo(bStart);
+    });
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: groupAvailability.length,
+      itemCount: sortedGroupAvailability.length,
       itemBuilder: (context, index) {
-        final availability = groupAvailability[index];
-        final groupName = availability['groupName'] ?? 'Unknown Group';
+        final availability = sortedGroupAvailability[index];
+        final isGroup = availability.containsKey('groupName'); // Check if it's a group availability
 
-        // Handle Timestamp conversion here
-        final startTime = availability['startTime'] is Timestamp
-            ? (availability['startTime'] as Timestamp).toDate()
-            : availability['startTime'];
-        final endTime = availability['endTime'] is Timestamp
-            ? (availability['endTime'] as Timestamp).toDate()
-            : availability['endTime'];
+        final title = isGroup ? availability['groupName'] : availability['eventTitle'];
+        final startTime = availability['startTime'] as DateTime; // Ensure startTime is DateTime
+        final endTime = availability['endTime'] as DateTime; // Ensure endTime is DateTime
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
@@ -36,9 +47,9 @@ class GroupAvailabilityWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top Row: Group Name
+                // Top Row: Group Name or Event Title
                 Text(
-                  groupName,
+                  title ?? 'Unknown Title',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -46,17 +57,17 @@ class GroupAvailabilityWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8.0),
-                // Middle Row: Availability Status
-                const Text(
-                  "Available",
+                // Middle Row: Availability or Event Status
+                Text(
+                  isGroup ? "Available" : "Event",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.green,
+                    color: isGroup ? Colors.green : Colors.blue,
                   ),
                 ),
                 const SizedBox(height: 8.0),
-                // Bottom Row: Availability Time
+                // Bottom Row: Availability/Event Time
                 Text(
                   "${_formatDateTime(startTime, context)} - ${_formatDateTime(endTime, context)}",
                   style: const TextStyle(
@@ -74,7 +85,6 @@ class GroupAvailabilityWidget extends StatelessWidget {
   }
 
   String _formatDateTime(DateTime dateTime, BuildContext context) {
-    if (dateTime == null) return "Invalid Time";
     final timeOfDay = TimeOfDay.fromDateTime(dateTime);
     return timeOfDay.format(context);
   }

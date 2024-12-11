@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Import for date formatting
 
 class AddEventWidget extends StatefulWidget {
   final Function(String title, DateTime startTime, DateTime endTime) onAddEvent;
@@ -123,8 +124,9 @@ class _AddEventWidgetState extends State<AddEventWidget> {
                     onPressed: () => _selectDateTime(context, true),
                     child: Text(
                       _startTime != null
-                          ? 'Start: ${_startTime!.toLocal()}'.split(' ')[0]
+                          ? 'Start: ${DateFormat('yyyy-MM-dd HH:mm').format(_startTime!)}'
                           : 'Select Start Time',
+                      style: const TextStyle(color: Colors.purple),
                     ),
                   ),
                 ),
@@ -134,8 +136,9 @@ class _AddEventWidgetState extends State<AddEventWidget> {
                     onPressed: () => _selectDateTime(context, false),
                     child: Text(
                       _endTime != null
-                          ? 'End: ${_endTime!.toLocal()}'.split(' ')[0]
+                          ? 'End: ${DateFormat('yyyy-MM-dd HH:mm').format(_endTime!)}'
                           : 'Select End Time',
+                      style: const TextStyle(color: Colors.purple),
                     ),
                   ),
                 ),
