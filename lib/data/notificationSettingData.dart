@@ -1,7 +1,7 @@
-class NotificationData {
+class NotificationSettingData {
   final String toggled;
 
-  NotificationData({
+  NotificationSettingData({
     required this.toggled,
   });
 
@@ -9,8 +9,8 @@ class NotificationData {
     'toggled' : toggled,
   };
 
-  factory NotificationData.fromJson(Map<String, dynamic> json) {
-    return NotificationData(
+  factory NotificationSettingData.fromJson(Map<String, dynamic> json) {
+    return NotificationSettingData(
         toggled: json['toggled']
     );
   }

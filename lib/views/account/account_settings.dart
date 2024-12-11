@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:Comrades/data/notificaitonData.dart';
+import 'package:Comrades/data/notificationSettingData.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -54,8 +54,8 @@ class _Account_SettingsState extends State<Account_Settings> {
 
   Future<void> showNotifications(bool newValue1) async {
     var loadedNotificationSetting = await manageCache.loadListFromCache('notification_setting.json');
-    List<NotificationData> notificationData = [];
-    notificationData.add(NotificationData(toggled: newValue1.toString()));
+    List<NotificationSettingData> notificationData = [];
+    notificationData.add(NotificationSettingData(toggled: newValue1.toString()));
     if (loadedNotificationSetting == null) {
       await manageCache.saveListToCache('notification_setting.json', notificationData);
     } else {
@@ -82,7 +82,7 @@ class _Account_SettingsState extends State<Account_Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -104,7 +104,7 @@ class _Account_SettingsState extends State<Account_Settings> {
                     ),
                   ),
                   SizedBox(height: 8),
-                  Text(userName, style: GoogleFonts.roboto(fontSize: 22, fontWeight: FontWeight.w700),),
+                  Text(userName, style: GoogleFonts.roboto(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white),),
                   Text("($userEmail)", style: GoogleFonts.roboto(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.grey[600]),)
                 ],
               ),
@@ -120,6 +120,7 @@ class _Account_SettingsState extends State<Account_Settings> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white
                       ),
                     ),
                     Divider(height: 20, thickness: 1),
@@ -139,6 +140,7 @@ class _Account_SettingsState extends State<Account_Settings> {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white
                           ),
                         ),
                       ],
@@ -147,7 +149,7 @@ class _Account_SettingsState extends State<Account_Settings> {
                     SizedBox(height: 10),
                     buildNotificationOption("Show Notifications", valNotify1, showNotifications),
                     buildNotificationOption("Announcements", valNotify2, announcementsToggle),
-                    buildNotificationOption("Receive NewsLetter", valNotify3, receiveNews),
+                    buildNotificationOption("Receive Newsletter", valNotify3, receiveNews),
                   ],
                 ),
               ),
@@ -169,7 +171,7 @@ class _Account_SettingsState extends State<Account_Settings> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w500,
-              color: Colors.grey[600],
+              color: Colors.white,
             ),
           ),
           Transform.scale(
@@ -222,10 +224,10 @@ class _Account_SettingsState extends State<Account_Settings> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
+                color: Colors.white,
               ),
             ),
-            Icon(Icons.arrow_forward_ios, color: Colors.grey),
+            Icon(Icons.arrow_forward_ios, color: Colors.white),
           ],
         ),
       ),

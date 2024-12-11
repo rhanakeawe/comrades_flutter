@@ -1,14 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: NotificationsPage(),
-    ),
-  );
-}
+import 'package:google_fonts/google_fonts.dart';
 
 class NotificationsPage extends StatelessWidget {
   const NotificationsPage({super.key});
@@ -16,102 +7,83 @@ class NotificationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black45,
       appBar: AppBar(
-        title: const Text('Notifications Settings'),
+        title: Text('Notifications', style: GoogleFonts.roboto(fontSize: 20, color: Colors.white),),
+        backgroundColor: Colors.black45,
       ),
-      body: listView(),
+      body: ListView.separated(
+        itemCount: 6,
+        separatorBuilder: (context, index) {
+          return const Divider(height: 0);
+        },
+        itemBuilder: (context, index) {
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 50,
+                  width: 50,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.grey.shade300,
+                  ),
+                  child: const Icon(
+                    Icons.notifications,
+                    color: Colors.black,
+                    size: 25,
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(left: 10),
+                        child: Text(
+                          '01-1-24',
+                          style: GoogleFonts.roboto(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(left: 10),
+                        child: RichText(
+                          maxLines: 2,
+                          overflow: TextOverflow.fade,
+                          text: TextSpan(
+                            text: 'Message ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: "Message Description lorum ipsum lorum ipsum lorum ipsum lorum ipsum lorum ipsum lorum ipsum lorum ipsum lorum ipsum",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
-}
-
-Widget listView() {
-  return ListView.separated(
-    itemBuilder: (context, index) {
-      return listViewItem(index);
-    },
-    separatorBuilder: (context, index) {
-      return const Divider(height: 0);
-    },
-    itemCount: 10,
-  );
-}
-
-Widget listViewItem(int index) {
-  return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        prefixIcon(),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              message(index),
-              timeandDate(index),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget prefixIcon() {
-  return Container(
-    height: 50,
-    width: 50,
-    padding: const EdgeInsets.all(10),
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      color: Colors.grey.shade300,
-    ),
-    child: const Icon(
-      Icons.notifications,
-      size: 25,
-    ),
-  );
-}
-
-Widget message(int index) {
-  double textSize = 14;
-  return Container(
-    child: RichText(
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
-      text: TextSpan(
-        text: 'Message',
-        style: TextStyle(
-          fontSize: textSize,
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-        ),
-        children: [
-          TextSpan(
-            text: " Message Description",
-            style: TextStyle(
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-Widget timeandDate(int index) {
-  return Container(
-    margin: const EdgeInsets.only(top: 5),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: const [
-        Text(
-          '01-1-24',
-          style: TextStyle(
-            fontSize: 10,
-          ),
-        ),
-      ],
-    ),
-  );
 }
