@@ -5,7 +5,7 @@ class DaysOfWeek extends StatelessWidget {
 
   const DaysOfWeek({
     super.key,
-    this.highlightCurrentDay = false, // Optional parameter to highlight the current day
+    this.highlightCurrentDay = false,
   });
 
   @override
@@ -22,8 +22,8 @@ class DaysOfWeek extends StatelessWidget {
           final index = entry.key;
           final day = entry.value;
 
-          // Check if this day is the current day
-          final isToday = highlightCurrentDay && today.weekday % 7 == index + 1;
+          // Map `DateTime.weekday` (1=Mon, 7=Sun) to `days` array (0=Sun, 6=Sat)
+          final isToday = highlightCurrentDay && ((today.weekday % 7) == index);
 
           return Text(
             day,

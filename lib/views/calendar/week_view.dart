@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -17,7 +18,7 @@ class WeekView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final startOfWeek = focusedDay.subtract(Duration(days: focusedDay.weekday - 1));
+    final startOfWeek = focusedDay.subtract(Duration(days: (focusedDay.weekday) % 7));
     final daysInWeek = List.generate(7, (index) => startOfWeek.add(Duration(days: index)));
 
     return Container(
@@ -31,7 +32,9 @@ class WeekView extends StatelessWidget {
                   day.month == selectedDay.month &&
                   day.year == selectedDay.year;
 
-              final eventsForDay = _getEventsForDay(day);
+              final isToday = day.day == DateTime.now().day &&
+                  day.month == DateTime.now().month &&
+                  day.year == DateTime.now().year;
 
               return GestureDetector(
                 onTap: () {
@@ -40,7 +43,11 @@ class WeekView extends StatelessWidget {
                 child: Column(
                   children: [
                     CircleAvatar(
-                      backgroundColor: isSelected ? Colors.blue : Colors.grey.shade800,
+                      backgroundColor: isSelected
+                          ? Colors.blue
+                          : isToday
+                          ? Colors.green
+                          : Colors.grey.shade800,
                       child: Text(
                         '${day.day}',
                         style: const TextStyle(
@@ -63,16 +70,14 @@ class WeekView extends StatelessWidget {
   }
 
   List<Map<String, dynamic>> _getEventsForDay(DateTime day) {
-    return events
-        .where((event) {
-      final eventStart = event['startTime']; // If eventStart is already a DateTime, no need to call toDate()
-      final eventEnd = event['endTime']; // Same for eventEnd
-
+    return events.where((event) {
+      final eventStart = (event['startTime'] is Timestamp)
+          ? (event['startTime'] as Timestamp).toDate()
+          : event['startTime'];
       return eventStart.year == day.year &&
           eventStart.month == day.month &&
           eventStart.day == day.day;
-    })
-        .toList();
+    }).toList();
   }
 
   Widget _buildEventList({required List<Map<String, dynamic>> eventsForDay, required BuildContext context}) {
@@ -98,7 +103,7 @@ class WeekView extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.white.withOpacity(0.2)),
             ),
-            width: MediaQuery.of(context).size.width - 16, // Makes the event box full width
+            width: MediaQuery.of(context).size.width - 16,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
